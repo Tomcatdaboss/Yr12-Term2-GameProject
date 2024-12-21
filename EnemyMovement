@@ -1,1 +1,38 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
+public class EnemyMovement : MonoBehaviour
+{
+    public GameObject player;
+    public float timeDelay;
+    private float position_difference_x;
+    private float position_difference_y;
+    private float position_difference_z;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        position_difference_x = player.transform.position.x - gameObject.transform.position.x;
+        position_difference_y = player.transform.position.y - gameObject.transform.position.y;
+        position_difference_z = player.transform.position.z - gameObject.transform.position.z;
+        if (position_difference_x <= 5 && position_difference_y <= 5 && position_difference_z <= 5){
+            RunAtPlayer();
+        } else {
+            Idle();
+        }
+        
+    }
+    private void RunAtPlayer(){
+        transform.position = Vector3.Lerp(transform.position, player.transform.position, timeDelay * Time.deltaTime);
+    }
+    private void Idle(){
+        //stub
+    }
+}
