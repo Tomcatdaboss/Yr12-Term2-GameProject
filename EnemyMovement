@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -9,11 +10,13 @@ public class EnemyMovement : MonoBehaviour
     private float position_difference_x;
     private float position_difference_y;
     private float position_difference_z;
+    private bool already_attacked = false;
+    Animator animator;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        animator = gameObject.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -26,8 +29,7 @@ public class EnemyMovement : MonoBehaviour
             RunAtPlayer();
         } else {
             Idle();
-        }
-        
+        }    
     }
     private void RunAtPlayer(){
         transform.position = Vector3.Lerp(transform.position, player.transform.position, timeDelay * Time.deltaTime);
@@ -35,4 +37,15 @@ public class EnemyMovement : MonoBehaviour
     private void Idle(){
         //stub
     }
+    void OnCollisionStay(Collision collision){
+        if (collision.gameObject.tag == "Player"){
+            if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && already_attacked == false){
+            player.GetComponent<Hud>().health -= 10;
+            already_attacked = true;
+        } else if (animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyIdle")){
+            already_attacked = false;
+        }
+        }  
+    }
 }
+
