@@ -9,6 +9,7 @@ public class Inventory : MonoBehaviour
 {
     public int wood = 0;
     public int stone = 0;
+    public int ore = 0;
     private bool already_mined = false;
     public List<GameObject> InventSlots = new List<GameObject>();
     public List<GameObject> EquipSlots = new List<GameObject>();
@@ -40,6 +41,7 @@ public class Inventory : MonoBehaviour
       }
       wood = FindSlot("Wood", InventSlots).GetComponent<Slot>().quantity;
       stone = FindSlot("Stone", InventSlots).GetComponent<Slot>().quantity;
+      ore = FindSlot("Ore", InventSlots).GetComponent<Slot>().quantity;
     }
     public void AddToList(string add_candidate){
       CraftingList.Add(add_candidate);
@@ -120,9 +122,13 @@ public class Inventory : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
-        if (equip_controller.GetComponent<EquipController>().current_obj_selected == "Pickaxe"){
+      if (equip_controller.GetComponent<EquipController>().current_obj_selected == "Pickaxe"){
         if(other.gameObject.layer == 8 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
             InsertSlot("Stone", 1, true);
+            already_mined = true;
+        }
+        if(other.gameObject.layer == 9 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
+            InsertSlot("Ore", 1, true);
             already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
