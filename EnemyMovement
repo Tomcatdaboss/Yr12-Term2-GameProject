@@ -14,7 +14,7 @@ public class EnemyMovement : MonoBehaviour
     private bool already_attacked = false;
     private bool player_found = false;
     private bool at_position = false;
-    Animator animator;
+    public Animator animator;
     public Animator leg_anim_1;
     public Animator leg_anim_2;
     public Animator leg_anim_3;
@@ -59,25 +59,26 @@ public class EnemyMovement : MonoBehaviour
         leg_anim_4.SetBool("IsMoving", is_moving);
               
     }
-    void OnCollisionStay(Collision collision){
-        if (collision.gameObject.tag == "Player"){
-            if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && already_attacked == false){
-            player.GetComponent<Hud>().health -= 10;
-            already_attacked = true;
-            } else if (animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyIdle")){
-                already_attacked = false;
-            }
-        }  
-    }
     void OnTriggerStay(Collider collider){
+        float distance = Vector3.Distance(transform.position,player.position);
         if(collider.gameObject.tag == "Player"){
             player_found = true;
             is_moving = true;
             Vector3 nony_player = new Vector3(player.position.x, transform.position.y, player.position.z);
 		    transform.LookAt(nony_player);
-		    float distance = Vector3.Distance(transform.position,player.position);
 		    if(distance > 3)	
 			    transform.position += transform.forward * 10 * Time.deltaTime;	
+            }
+            if(distance < 5){
+                animator.SetBool("InAttackRange", true);
+                if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && already_attacked == false){
+                player.GetComponent<Hud>().health -= 10;
+                already_attacked = true;
+                } else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+                    already_attacked = false;
+            }
+            } else {
+                animator.SetBool("InAttackRange", false);
             }
     }
     void OnTriggerExit(Collider collider){
@@ -87,5 +88,6 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 }
+
  
 
