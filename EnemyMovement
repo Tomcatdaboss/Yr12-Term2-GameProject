@@ -22,12 +22,12 @@ public class EnemyMovement : MonoBehaviour
     public double timer = -10;
     private float new_x;
     private float new_z;
+    public int minimum_distance;
     bool is_moving = true;
 
     // Start is called before the first frame update
     void Start()
     {
-        animator = gameObject.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -66,8 +66,11 @@ public class EnemyMovement : MonoBehaviour
             is_moving = true;
             Vector3 nony_player = new Vector3(player.position.x, transform.position.y, player.position.z);
 		    transform.LookAt(nony_player);
-		    if(distance > 3)	
+		    if(distance > minimum_distance)	
 			    transform.position += transform.forward * 10 * Time.deltaTime;	
+            else{
+                is_moving = false;
+            }
             }
             if(distance < 5){
                 animator.SetBool("InAttackRange", true);
@@ -76,10 +79,10 @@ public class EnemyMovement : MonoBehaviour
                 already_attacked = true;
                 } else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
                     already_attacked = false;
-            }
-            } else {
-                animator.SetBool("InAttackRange", false);
-            }
+                }
+                } else {
+                    animator.SetBool("InAttackRange", false);
+                }
     }
     void OnTriggerExit(Collider collider){
         if (collider.gameObject.tag == "Player"){
@@ -88,6 +91,7 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 }
+
 
  
 
