@@ -57,15 +57,11 @@ public class EquipController : MonoBehaviour
             pickaxe_obj.SetActive(false);
             if(Input.GetKey(KeyCode.Mouse0)){
                 is_mining = true;
-                spear_animator.SetBool("Mining", is_mining);
+                spear_animator.SetBool("Is_Mining", is_mining);
             } else {
                 is_mining = false;
-                spear_animator.SetBool("Mining", is_mining);
+                spear_animator.SetBool("Is_Mining", is_mining);
             }
-        }
-    }
-}
-
         }
     }
 }
