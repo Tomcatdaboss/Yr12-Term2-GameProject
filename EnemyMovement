@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO.Compression;
 using System.Net.Sockets;
+using System.Numerics;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -48,9 +49,9 @@ public class EnemyMovement : MonoBehaviour
         }
         if (player_found == false && at_position == false){
             Debug.Log(new_x);
-            Vector3 moveto = new Vector3 (new_x, transform.position.y, new_z);
+            UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
             transform.LookAt(moveto);
-            float current_distance = Vector3.Distance(transform.position, moveto);
+            float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
 		    if(current_distance > 2){
 			    transform.position += transform.forward * 10 * Time.deltaTime;
                 is_moving = true;	
@@ -65,16 +66,23 @@ public class EnemyMovement : MonoBehaviour
         leg_anim_4.SetBool("IsMoving", is_moving);
     }
         if(health <= 0){
-
+            is_dead = true;
+            animator.SetBool("IsDead", is_dead);
+            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == false){
+                UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 50 ,UnityEngine.Random.Range(-10,10));
+                transform.position = enemyspawn;
+                is_dead = false;
+                health = max_health;
+            }
         }
     }
     void OnTriggerStay(Collider collider){
     if(is_dead == false){
-        float distance = Vector3.Distance(transform.position,player.position);
+        float distance = UnityEngine.Vector3.Distance(transform.position,player.position);
         if(collider.gameObject.tag == "Player"){
             player_found = true;
             is_moving = true;
-            Vector3 nony_player = new Vector3(player.position.x, transform.position.y, player.position.z);
+            UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z);
 		    transform.LookAt(nony_player);
 		    if(distance > minimum_distance)	
 			    transform.position += transform.forward * 10 * Time.deltaTime;	
@@ -102,7 +110,3 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 }
-
-
- 
-
