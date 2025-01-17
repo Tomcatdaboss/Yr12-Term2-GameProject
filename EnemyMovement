@@ -12,7 +12,6 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     public Transform player;
-    private bool already_attacked = false;
     private bool player_found = false;
     private bool at_position = false;
     public Animator animator;
@@ -22,7 +21,8 @@ public class EnemyMovement : MonoBehaviour
     public Animator leg_anim_4;
     public int health;
     public int max_health;
-    public double timer = -10;
+    public double timer = 10;
+    public double atktimer = 5;
     private float new_x;
     private float new_z;
     public int minimum_distance;
@@ -67,9 +67,11 @@ public class EnemyMovement : MonoBehaviour
         if(health <= 0){
             is_dead = true;
             animator.SetBool("IsDead", is_dead);
-            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == false){
+            gameObject.layer = 10;
+            if(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle") == false){
                 UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
                 transform.position = enemyspawn;
+                gameObject.layer = 11;
                 is_dead = false;
                 health = max_health;
             }
@@ -90,16 +92,15 @@ public class EnemyMovement : MonoBehaviour
             }
             }
             if(distance < 5){
-                animator.SetBool("InAttackRange", true);
-                if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && already_attacked == false){
-                player.GetComponent<Hud>().health -= 10;
-                already_attacked = true;
-                } else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
-                    already_attacked = false;
+                atktimer -= 0.01;
+                if(atktimer <= 0){
+                    player.GetComponent<Hud>().health -= 10;
+                    animator.SetBool("InAttackRange", true);
+                    atktimer = 5;
                 }
-                } else {
-                    animator.SetBool("InAttackRange", false);
-                }
+            } else {
+                animator.SetBool("InAttackRange", false);
+            }
         }
     }
     void OnTriggerExit(Collider collider){
@@ -109,3 +110,4 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 }
+
