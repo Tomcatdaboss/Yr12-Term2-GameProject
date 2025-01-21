@@ -22,7 +22,8 @@ public class EnemyMovement : MonoBehaviour
     public int health;
     public int max_health;
     public double timer = 10;
-    public double atktimer = 5;
+    public double atktimer = 10;
+    public double deathtimer = 10;
     private float new_x;
     private float new_z;
     public int minimum_distance;
@@ -68,12 +69,16 @@ public class EnemyMovement : MonoBehaviour
             is_dead = true;
             animator.SetBool("IsDead", is_dead);
             gameObject.layer = 10;
-            if(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle") == false){
-                UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
-                transform.position = enemyspawn;
-                gameObject.layer = 11;
-                is_dead = false;
-                health = max_health;
+            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){
+                atktimer -= 0.01;
+                if(atktimer <= 0){
+                    UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
+                    transform.position = enemyspawn;
+                    gameObject.layer = 11;
+                    is_dead = false;
+                    animator.SetBool("IsDead", is_dead);
+                    health = max_health;
+                }
             }
         }
     }
@@ -96,10 +101,12 @@ public class EnemyMovement : MonoBehaviour
                 if(atktimer <= 0){
                     player.GetComponent<Hud>().health -= 10;
                     animator.SetBool("InAttackRange", true);
-                    atktimer = 5;
+                    atktimer = 10;
+                } else {
+                    animator.SetBool("InAttackRange", false);
                 }
             } else {
-                animator.SetBool("InAttackRange", false);
+                    animator.SetBool("InAttackRange", false);
             }
         }
     }
@@ -110,4 +117,3 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 }
-
