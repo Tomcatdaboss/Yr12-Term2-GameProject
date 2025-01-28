@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -19,6 +20,7 @@ public class EnemyMovement : MonoBehaviour
     public Animator leg_anim_2;
     public Animator leg_anim_3;
     public Animator leg_anim_4;
+    public GameObject enemybody;
     public int health;
     public int max_health;
     public double timer = 10;
@@ -68,16 +70,19 @@ public class EnemyMovement : MonoBehaviour
         if(health <= 0){
             is_dead = true;
             animator.SetBool("IsDead", is_dead);
-            gameObject.layer = 10;
+            enemybody.layer = 10;
+            //Debug.Log(gameObject.layer);
             if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){
-                atktimer -= 0.01;
-                if(atktimer <= 0){
+                deathtimer -= 0.01;
+                if(deathtimer <= 0){
                     UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
                     transform.position = enemyspawn;
-                    gameObject.layer = 11;
+                    enemybody.layer = 11;
+                    //Debug.Log(gameObject.layer);
                     is_dead = false;
                     animator.SetBool("IsDead", is_dead);
                     health = max_health;
+                    deathtimer = 10;
                 }
             }
         }
