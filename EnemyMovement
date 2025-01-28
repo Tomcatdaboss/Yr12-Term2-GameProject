@@ -99,12 +99,13 @@ public class EnemyMovement : MonoBehaviour
             if(distance < 5){
                 atktimer -= 0.01;
                 if(atktimer <= 0){
-                    player.GetComponent<Hud>().health -= 10;
                     animator.SetBool("InAttackRange", true);
-                    atktimer = 10;
-                } else {
-                    animator.SetBool("InAttackRange", false);
-                }
+                    if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack")){                       
+                        animator.SetBool("InAttackRange", false);
+                        player.GetComponent<Hud>().health -= 10;
+                        atktimer = 10;
+                    }
+                } 
             } else {
                     animator.SetBool("InAttackRange", false);
             }
