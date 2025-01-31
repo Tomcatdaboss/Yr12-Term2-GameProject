@@ -1,0 +1,25 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor.Build.Content;
+using UnityEngine;
+
+[System.Serializable]
+public class PlayerDataManager
+{
+    public Transform playerPosition;
+    public float health;
+    public Hud Hud;
+    public void SaveGame() {
+        PlayerData playerData = new PlayerData();
+        playerData.position = new float [] {playerPosition.position.x, playerPosition.position.y, playerPosition.position.z};
+        playerData.health = Hud.health;
+        
+        string json = JsonUtility.ToJson(playerData);
+        string path = Application.persistentDataPath + "/playerData.json";
+        
+    }
+    public void LoadGame() {
+
+    }
+}
