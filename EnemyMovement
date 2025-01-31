@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO.Compression;
 using System.Net.Sockets;
+using System.Numerics;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
     public Transform player;
-    private bool already_attacked = false;
     private bool player_found = false;
     private bool at_position = false;
     public Animator animator;
@@ -19,20 +20,29 @@ public class EnemyMovement : MonoBehaviour
     public Animator leg_anim_2;
     public Animator leg_anim_3;
     public Animator leg_anim_4;
-    public double timer = -10;
+    public GameObject enemybody;
+    public int health;
+    public int max_health;
+    public double timer = 10;
+    public double atktimer = 10;
+    public double deathtimer = 10;
     private float new_x;
     private float new_z;
     public int minimum_distance;
     bool is_moving = true;
+    bool is_dead = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        health = max_health;
+        Mathf.Clamp(health, 0, max_health);
     }
 
     // Update is called once per frame
     void Update()
     {
+    if (is_dead == false){
         timer -= 0.01;
         if(timer <= 0 && player_found == false){
             timer = 10;
@@ -41,10 +51,9 @@ public class EnemyMovement : MonoBehaviour
             at_position = false;
         }
         if (player_found == false && at_position == false){
-            Debug.Log(new_x);
-            Vector3 moveto = new Vector3 (new_x, transform.position.y, new_z);
+            UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
             transform.LookAt(moveto);
-            float current_distance = Vector3.Distance(transform.position, moveto);
+            float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
 		    if(current_distance > 2){
 			    transform.position += transform.forward * 10 * Time.deltaTime;
                 is_moving = true;	
@@ -57,14 +66,34 @@ public class EnemyMovement : MonoBehaviour
         leg_anim_2.SetBool("IsMoving", is_moving);
         leg_anim_3.SetBool("IsMoving", is_moving);
         leg_anim_4.SetBool("IsMoving", is_moving);
-              
+    }
+        if(health <= 0){
+            is_dead = true;
+            animator.SetBool("IsDead", is_dead);
+            enemybody.layer = 10;
+            //Debug.Log(gameObject.layer);
+            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){
+                deathtimer -= 0.01;
+                if(deathtimer <= 0){
+                    UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
+                    transform.position = enemyspawn;
+                    enemybody.layer = 11;
+                    //Debug.Log(gameObject.layer);
+                    is_dead = false;
+                    animator.SetBool("IsDead", is_dead);
+                    health = max_health;
+                    deathtimer = 10;
+                }
+            }
+        }
     }
     void OnTriggerStay(Collider collider){
-        float distance = Vector3.Distance(transform.position,player.position);
+    if(is_dead == false){
+        float distance = UnityEngine.Vector3.Distance(transform.position,player.position);
         if(collider.gameObject.tag == "Player"){
             player_found = true;
             is_moving = true;
-            Vector3 nony_player = new Vector3(player.position.x, transform.position.y, player.position.z);
+            UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z);
 		    transform.LookAt(nony_player);
 		    if(distance > minimum_distance)	
 			    transform.position += transform.forward * 10 * Time.deltaTime;	
@@ -73,25 +102,24 @@ public class EnemyMovement : MonoBehaviour
             }
             }
             if(distance < 5){
-                animator.SetBool("InAttackRange", true);
-                if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && already_attacked == false){
-                player.GetComponent<Hud>().health -= 10;
-                already_attacked = true;
-                } else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
-                    already_attacked = false;
-                }
-                } else {
+                atktimer -= 0.01;
+                if(atktimer <= 0){
+                    animator.SetBool("InAttackRange", true);
+                    if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack")){                       
+                        animator.SetBool("InAttackRange", false);
+                        player.GetComponent<Hud>().health -= 10;
+                        atktimer = 10;
+                    }
+                } 
+            } else {
                     animator.SetBool("InAttackRange", false);
-                }
+            }
+        }
     }
     void OnTriggerExit(Collider collider){
-        if (collider.gameObject.tag == "Player"){
+        if (collider.gameObject.tag == "Player" && is_dead == false){
             player_found = false;
             is_moving = false;
         }
     }
 }
-
-
- 
-

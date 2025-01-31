@@ -144,6 +144,21 @@ public class Inventory : MonoBehaviour
           already_mined = false;
         } 
       }
+      if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Spear"){
+        Debug.Log(other.gameObject.layer);
+        if(other.gameObject.layer == 10 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
+          InsertSlot("Raw Meat", 1, true);
+          already_mined = true;
+        }
+        if(other.gameObject.layer == 11 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
+          other.gameObject.GetComponentInParent<EnemyMovement>().health -= 10;
+          //Debug.Log(other.gameObject.GetComponentInParent<EnemyMovement>().health);
+          already_mined = true;
+        }
+        if(equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+          already_mined = false;
+        } 
+      }
     }
     
 }
