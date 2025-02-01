@@ -2,8 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 [System.Serializable]
-public class PlayerData : MonoBehaviour
+public class PlayerData
 {
     public float [] position;
     public float health;
+    public float stamina;
+    public float thirst;
+    public float hunger;
+    public float level;
+    public float xp;
+
 }
