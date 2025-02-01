@@ -3,23 +3,51 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor.Build.Content;
 using UnityEngine;
-
-[System.Serializable]
-public class PlayerDataManager
+public class PlayerDataManager : MonoBehaviour
 {
-    public Transform playerPosition;
-    public float health;
-    public Hud Hud;
+    public GameObject player;
+    private float health;
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Q)){
+            SaveGame();
+        }
+        if(Input.GetKeyDown(KeyCode.L)){
+            LoadGame();
+        }
+    }
     public void SaveGame() {
         PlayerData playerData = new PlayerData();
-        playerData.position = new float [] {playerPosition.position.x, playerPosition.position.y, playerPosition.position.z};
-        playerData.health = Hud.health;
+        playerData.position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z};
+        playerData.health = player.GetComponent<Hud>().health;
+        playerData.stamina = player.GetComponent<Hud>().stamina;
+        playerData.hunger = player.GetComponent<Hud>().hunger;
+        playerData.thirst = player.GetComponent<Hud>().thirst;
+        playerData.level = player.GetComponent<Hud>().XP_level;
+        playerData.xp = player.GetComponent<Hud>().xp;
         
         string json = JsonUtility.ToJson(playerData);
         string path = Application.persistentDataPath + "/playerData.json";
+        System.IO.File.WriteAllText(path, json);
         
     }
     public void LoadGame() {
+        string path = Application.persistentDataPath + "/playerData.json";
+        if (System.IO.File.Exists(path)){
+            string json = System.IO.File.ReadAllText(path);
+            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
 
+            player.transform.position = new Vector3(loadedData.position[0], loadedData.position[1], loadedData.position[2]);
+            Vector3 loadedPosition = new Vector3(loadedData.position[0], loadedData.position[1], loadedData.position[2]);
+            player.transform.position = loadedPosition;
+            player.GetComponent<Hud>().health = loadedData.health;
+            player.GetComponent<Hud>().stamina = loadedData.stamina;
+            player.GetComponent<Hud>().hunger = loadedData.hunger;
+            player.GetComponent<Hud>().thirst = loadedData.thirst;
+            player.GetComponent<Hud>().XP_level = loadedData.level;
+            player.GetComponent<Hud>().xp = loadedData.xp;
+        } else {
+            Debug.LogWarning("Error: File not found");
+        }
     }
 }
