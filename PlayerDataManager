@@ -6,7 +6,8 @@ using UnityEngine;
 public class PlayerDataManager : MonoBehaviour
 {
     public GameObject player;
-    private float health;
+    public GameObject enemy1;
+    public GameObject enemy2;
     public void Update()
     {
         if(Input.GetKeyDown(KeyCode.Q)){
@@ -18,13 +19,18 @@ public class PlayerDataManager : MonoBehaviour
     }
     public void SaveGame() {
         PlayerData playerData = new PlayerData();
-        playerData.position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z};
+        playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z};
         playerData.health = player.GetComponent<Hud>().health;
         playerData.stamina = player.GetComponent<Hud>().stamina;
         playerData.hunger = player.GetComponent<Hud>().hunger;
         playerData.thirst = player.GetComponent<Hud>().thirst;
         playerData.level = player.GetComponent<Hud>().XP_level;
         playerData.xp = player.GetComponent<Hud>().xp;
+        playerData.current_equip = player.GetComponentInChildren<EquipController>().current_obj_selected;
+        playerData.enemy_health_1 = enemy1.GetComponent<EnemyMovement>().health;
+        playerData.enemy_health_2 = enemy2.GetComponent<EnemyMovement>().health;
+        playerData.enemy_position_1 = new float [] {enemy1.transform.position.x, enemy1.transform.position.y, enemy1.transform.position.z};
+        playerData.enemy_position_2 = new float [] {enemy2.transform.position.x, enemy2.transform.position.y, enemy2.transform.position.z};
         
         string json = JsonUtility.ToJson(playerData);
         string path = Application.persistentDataPath + "/playerData.json";
@@ -37,8 +43,8 @@ public class PlayerDataManager : MonoBehaviour
             string json = System.IO.File.ReadAllText(path);
             PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
 
-            player.transform.position = new Vector3(loadedData.position[0], loadedData.position[1], loadedData.position[2]);
-            Vector3 loadedPosition = new Vector3(loadedData.position[0], loadedData.position[1], loadedData.position[2]);
+            player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
+            Vector3 loadedPosition = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
             player.transform.position = loadedPosition;
             player.GetComponent<Hud>().health = loadedData.health;
             player.GetComponent<Hud>().stamina = loadedData.stamina;
@@ -46,6 +52,15 @@ public class PlayerDataManager : MonoBehaviour
             player.GetComponent<Hud>().thirst = loadedData.thirst;
             player.GetComponent<Hud>().XP_level = loadedData.level;
             player.GetComponent<Hud>().xp = loadedData.xp;
+            player.GetComponentInChildren<EquipController>().current_obj_selected = loadedData.current_equip;
+            enemy1.GetComponent<EnemyMovement>().health = loadedData.health;
+            enemy1.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            Vector3 loadedPosition_enemy1 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy1.transform.position = loadedPosition_enemy1;
+            enemy2.GetComponent<EnemyMovement>().health = loadedData.health;
+            enemy2.transform.position = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
+            Vector3 loadedPosition_enemy2 = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
+            enemy2.transform.position = loadedPosition_enemy2;
         } else {
             Debug.LogWarning("Error: File not found");
         }
