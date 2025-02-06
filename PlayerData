@@ -4,12 +4,17 @@ using UnityEngine;
 [System.Serializable]
 public class PlayerData
 {
-    public float [] position;
+    public float [] player_position;
     public float health;
     public float stamina;
     public float thirst;
     public float hunger;
     public float level;
     public float xp;
+    public string current_equip;
+    public float enemy_health_1;
+    public float [] enemy_position_1;
+    public float enemy_health_2; 
+    public float [] enemy_position_2;
 
 }
