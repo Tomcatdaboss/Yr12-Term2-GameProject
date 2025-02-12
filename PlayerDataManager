@@ -66,6 +66,8 @@ public class PlayerDataManager : MonoBehaviour
             player.transform.position = loadedPosition;
             player.GetComponent<Hud>().health = loadedData.health;
             player.GetComponent<Hud>().stamina = loadedData.stamina;
+            player.GetComponent<Hud>().health = Mathf.Clamp( player.GetComponent<Hud>().health, 0,  player.GetComponent<Hud>().maxHealth);
+            player.GetComponent<Hud>().stamina = Mathf.Clamp( player.GetComponent<Hud>().stamina, 0,  player.GetComponent<Hud>().maxStamina);
             player.GetComponent<Hud>().hunger = loadedData.hunger;
             player.GetComponent<Hud>().thirst = loadedData.thirst;
             player.GetComponent<Hud>().XP_level = loadedData.level;
