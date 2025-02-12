@@ -43,6 +43,8 @@ public class EnemyMovement : MonoBehaviour
     void Update()
     {
     if (is_dead == false){
+        //Wandering mechanic.
+        // this if statement has a timer that decreases every frame. When it reaches zero, the enemy locates a point nearby, then resets the timer.
         timer -= 0.01;
         if(timer <= 0 && player_found == false){
             timer = 10;
@@ -50,6 +52,7 @@ public class EnemyMovement : MonoBehaviour
             new_z = transform.position.z + UnityEngine.Random.Range(-10,10);
             at_position = false;
         }
+        // this section moves the enemy to the selected point.
         if (player_found == false && at_position == false){
             UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
             transform.LookAt(moveto);
@@ -62,23 +65,25 @@ public class EnemyMovement : MonoBehaviour
                 is_moving = false;
             }
         }
+        // this section checks if the animal is moving every frame.
         leg_anim_1.SetBool("IsMoving", is_moving);
         leg_anim_2.SetBool("IsMoving", is_moving);
         leg_anim_3.SetBool("IsMoving", is_moving);
         leg_anim_4.SetBool("IsMoving", is_moving);
     }
+        // death mechanic
         if(health <= 0){
+            // triggers dead animation, locks down all other functions, turns enemy to "meat" layer.
             is_dead = true;
             animator.SetBool("IsDead", is_dead);
             enemybody.layer = 10;
-            //Debug.Log(gameObject.layer);
-            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){
+            player.GetComponent<Hud>().xp += 50;
+            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){ // checks if dead anim has started, to trigger timer
                 deathtimer -= 0.01;
-                if(deathtimer <= 0){
+                if(deathtimer <= 0){ // after timer finishes, the enemy respawns and resets all stats
                     UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
                     transform.position = enemyspawn;
                     enemybody.layer = 11;
-                    //Debug.Log(gameObject.layer);
                     is_dead = false;
                     animator.SetBool("IsDead", is_dead);
                     health = max_health;
@@ -88,22 +93,24 @@ public class EnemyMovement : MonoBehaviour
         }
     }
     void OnTriggerStay(Collider collider){
+        //player detection mechanic
     if(is_dead == false){
         float distance = UnityEngine.Vector3.Distance(transform.position,player.position);
         if(collider.gameObject.tag == "Player"){
-            player_found = true;
+            player_found = true; // stops wandering
             is_moving = true;
-            UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z);
+            UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
 		    transform.LookAt(nony_player);
-		    if(distance > minimum_distance)	
+		    if(distance > minimum_distance)	// checks that the enemy is not too close
 			    transform.position += transform.forward * 10 * Time.deltaTime;	
             else{
                 is_moving = false;
             }
             }
             if(distance < 5){
+                // attacking function
                 atktimer -= 0.01;
-                if(atktimer <= 0){
+                if(atktimer <= 0){ // when timer reaches zero, the attack animation is triggered and the player's health is lowered, then the timer is reset.
                     animator.SetBool("InAttackRange", true);
                     if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack")){                       
                         animator.SetBool("InAttackRange", false);
@@ -116,7 +123,7 @@ public class EnemyMovement : MonoBehaviour
             }
         }
     }
-    void OnTriggerExit(Collider collider){
+    void OnTriggerExit(Collider collider){ // this deals with when the player escapes detection range and it goes back to wandering.
         if (collider.gameObject.tag == "Player" && is_dead == false){
             player_found = false;
             is_moving = false;
