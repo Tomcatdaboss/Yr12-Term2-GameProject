@@ -62,10 +62,6 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (stamina > 100){ // checker to fix stamina bug while loading
-            stamina = 99;
-        }
-
         is_winded_end_time = Time.time; 
 
         xp_txt.text = XP_level.ToString();
