@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    private bool already_mined = false;
+    public bool already_mined = false;
     public List<GameObject> InventSlots = new List<GameObject>();
     public List<GameObject> EquipSlots = new List<GameObject>();
     public List<string> CraftingList = new List<string>();
@@ -116,6 +116,9 @@ public class Inventory : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
+      if(other.gameObject.layer == 4){
+        gameObject.GetComponent<Hud>().thirst = 100;
+      }
       if (equip_controller.GetComponent<EquipController>().current_obj_selected == "Pickaxe"){
         if(other.gameObject.layer == 8 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
             InsertSlot("Stone", 1, true);
@@ -152,9 +155,6 @@ public class Inventory : MonoBehaviour
           already_mined = false;
         } 
       }
-    }
-    
-}
     }
     
 }
