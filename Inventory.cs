@@ -122,10 +122,12 @@ public class Inventory : MonoBehaviour
       if (equip_controller.GetComponent<EquipController>().current_obj_selected == "Pickaxe"){
         if(other.gameObject.layer == 8 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
             InsertSlot("Stone", 1, true);
+            gameObject.GetComponent<Hud>().xp += 2;
             already_mined = true;
         }
         if(other.gameObject.layer == 9 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
             InsertSlot("Ore", 1, true);
+            gameObject.GetComponent<Hud>().xp += 2;
             already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
@@ -135,6 +137,7 @@ public class Inventory : MonoBehaviour
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Axe"){
         if(other.gameObject.layer == 7 && equip_controller.GetComponent<EquipController>().axe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("AxeMining_Anim") && already_mined == false){
           InsertSlot("Wood", 1, true);
+          gameObject.GetComponent<Hud>().xp += 2;
           already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().axe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
@@ -145,10 +148,12 @@ public class Inventory : MonoBehaviour
         Debug.Log(other.gameObject.layer);
         if(other.gameObject.layer == 10 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
           InsertSlot("Raw Meat", 1, true);
+          gameObject.GetComponent<Hud>().xp += 2;
           already_mined = true;
         }
         if(other.gameObject.layer == 11 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
           other.gameObject.GetComponentInParent<EnemyMovement>().health -= 10;
+          gameObject.GetComponent<Hud>().xp += 3;
           already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
