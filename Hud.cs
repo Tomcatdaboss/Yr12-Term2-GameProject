@@ -37,9 +37,13 @@ public class Hud : MonoBehaviour
     public GameObject help_sprite;
     public float XP_level;
     private Text xp_txt;
+    private float lasthealth = 100;
     public float is_winded_start_time = 0;
     public float is_winded_end_time = 0;
     public float is_winded_time_elapsed = 0;
+    public float is_hurt_start_time = 0;
+    public float is_hurt_end_time = 0;
+    public float is_hurt_time_elapsed = 0;
 
 
     // Start is called before the first frame update
@@ -62,7 +66,8 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        is_winded_end_time = Time.time; 
+        is_winded_end_time = Time.time;
+        is_hurt_end_time = Time.time; 
 
         xp_txt.text = XP_level.ToString();
 
@@ -135,6 +140,24 @@ public class Hud : MonoBehaviour
             DeathScene.SetActive(true);
             transform.position = DeathSceneTransform.position;
         }
+        if (health != lasthealth)
+        {
+            is_hurt_start_time = Time.time;
+        }
+        if (is_hurt_start_time != 0)
+        { 
+            is_hurt_time_elapsed = is_hurt_end_time - is_hurt_start_time;
+            if (is_hurt_time_elapsed >= 5)
+            {
+                is_hurt_end_time = 0;
+                is_hurt_start_time = 0;
+            }
+        }
+        if (is_hurt_time_elapsed >= 5)
+        {
+            GainHealth(0.01f);
+        }
+        lasthealth = health;
         if(Input.GetKeyDown(KeyCode.I)){
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
