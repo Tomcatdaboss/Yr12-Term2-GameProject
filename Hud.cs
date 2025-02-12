@@ -116,7 +116,7 @@ public class Hud : MonoBehaviour
                 is_winded_start_time = 0;
             }
         }
-        if (is_winded_time_elapsed >= 5 && is_sprinting_bool == false)
+        if (is_winded_time_elapsed >= 5 && is_sprinting_bool == false && stamina <= 100)
         {
             LoseStamina(-0.1f);
         }
@@ -153,7 +153,7 @@ public class Hud : MonoBehaviour
                 is_hurt_start_time = 0;
             }
         }
-        if (is_hurt_time_elapsed >= 5)
+        if (is_hurt_time_elapsed >= 5 && health <= 100)
         {
             GainHealth(0.01f);
         }
