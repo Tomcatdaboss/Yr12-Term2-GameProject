@@ -7,9 +7,6 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    public int wood = 0;
-    public int stone = 0;
-    public int ore = 0;
     private bool already_mined = false;
     public List<GameObject> InventSlots = new List<GameObject>();
     public List<GameObject> EquipSlots = new List<GameObject>();
@@ -39,9 +36,6 @@ public class Inventory : MonoBehaviour
         GameObject obj_in_slot = EquipSlots[3];
         equip_controller.GetComponent<EquipController>().current_obj_selected = obj_in_slot.GetComponent<Slot>().item_name;
       }
-      wood = FindSlot("Wood", InventSlots).GetComponent<Slot>().quantity;
-      stone = FindSlot("Stone", InventSlots).GetComponent<Slot>().quantity;
-      ore = FindSlot("Ore", InventSlots).GetComponent<Slot>().quantity;
     }
     public void AddToList(string add_candidate){
       CraftingList.Add(add_candidate);
@@ -152,13 +146,15 @@ public class Inventory : MonoBehaviour
         }
         if(other.gameObject.layer == 11 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
           other.gameObject.GetComponentInParent<EnemyMovement>().health -= 10;
-          //Debug.Log(other.gameObject.GetComponentInParent<EnemyMovement>().health);
           already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
           already_mined = false;
         } 
       }
+    }
+    
+}
     }
     
 }

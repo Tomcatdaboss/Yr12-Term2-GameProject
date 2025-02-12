@@ -1,0 +1,99 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
+using UnityEditor.Build.Content;
+using UnityEngine;
+public class PlayerDataManager : MonoBehaviour
+{
+    public GameObject player;
+    public GameObject enemy1;
+    public GameObject enemy2;
+    private int iterate_names;
+    private int iterate_quants;
+    public List <GameObject> SlotList;
+    //public void Start(){
+        //LoadGame();
+    //}
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Q)){
+            SaveGame();
+        }
+        if(Input.GetKeyDown(KeyCode.L)){
+            LoadGame();
+        }
+    }
+    public void SaveGame() {
+        iterate_names = 0;
+        iterate_quants = 0;        
+        PlayerData playerData = new PlayerData();
+        playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z};
+        playerData.health = player.GetComponent<Hud>().health;
+        playerData.stamina = player.GetComponent<Hud>().stamina;
+        playerData.hunger = player.GetComponent<Hud>().hunger;
+        playerData.thirst = player.GetComponent<Hud>().thirst;
+        playerData.level = player.GetComponent<Hud>().XP_level;
+        playerData.xp = player.GetComponent<Hud>().xp;
+        playerData.current_equip = player.GetComponentInChildren<EquipController>().current_obj_selected;
+        playerData.enemy_health_1 = enemy1.GetComponent<EnemyMovement>().health;
+        playerData.enemy_health_2 = enemy2.GetComponent<EnemyMovement>().health;
+        playerData.enemy_position_1 = new float [] {enemy1.transform.position.x, enemy1.transform.position.y, enemy1.transform.position.z};
+        playerData.enemy_position_2 = new float [] {enemy2.transform.position.x, enemy2.transform.position.y, enemy2.transform.position.z};
+        while (iterate_names <= 18) {
+            playerData.slot_name_list.Add(SlotList[iterate_names].GetComponent<Slot>().item_name);            
+            iterate_names += 1;
+        }
+        while (iterate_quants <= 18) {
+            playerData.slot_quantity_list.Add(SlotList[iterate_quants].GetComponent<Slot>().quantity);
+            iterate_quants += 1;
+        }
+        string json = JsonUtility.ToJson(playerData);
+        string path = Application.persistentDataPath + "/playerData.json";
+        System.IO.File.WriteAllText(path, json);
+        
+    }
+    public void LoadGame() {
+        string path = Application.persistentDataPath + "/playerData.json";
+        if (System.IO.File.Exists(path)){
+            iterate_names = 0;
+            iterate_quants = 0;
+            string json = System.IO.File.ReadAllText(path);
+            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
+            player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
+            Vector3 loadedPosition = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
+            player.transform.position = loadedPosition;
+            player.GetComponent<Hud>().health = loadedData.health;
+            player.GetComponent<Hud>().stamina = loadedData.stamina;
+            player.GetComponent<Hud>().health = Mathf.Clamp( player.GetComponent<Hud>().health, 0,  player.GetComponent<Hud>().maxHealth);
+            player.GetComponent<Hud>().stamina = Mathf.Clamp( player.GetComponent<Hud>().stamina, 0,  player.GetComponent<Hud>().maxStamina);
+            player.GetComponent<Hud>().hunger = loadedData.hunger;
+            player.GetComponent<Hud>().thirst = loadedData.thirst;
+            player.GetComponent<Hud>().XP_level = loadedData.level;
+            player.GetComponent<Hud>().xp = loadedData.xp;
+            player.GetComponentInChildren<EquipController>().current_obj_selected = loadedData.current_equip;
+            enemy1.GetComponent<EnemyMovement>().health = loadedData.health;
+            enemy1.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            Vector3 loadedPosition_enemy1 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy1.transform.position = loadedPosition_enemy1;
+            enemy2.GetComponent<EnemyMovement>().health = loadedData.health;
+            enemy2.transform.position = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
+            Vector3 loadedPosition_enemy2 = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
+            enemy2.transform.position = loadedPosition_enemy2;
+            while (iterate_names <= 18)
+            {
+                SlotList[iterate_names].GetComponent<Slot>().item_name = loadedData.slot_name_list[iterate_names];
+                iterate_names += 1;
+            }
+            while (iterate_quants <= 18)
+            {
+                SlotList[iterate_quants].GetComponent<Slot>().quantity = loadedData.slot_quantity_list[iterate_quants];
+                iterate_quants += 1;
+            }
+        } else {
+            Debug.LogWarning("Error: Save File not found");
+        }
+        
+    }
+}

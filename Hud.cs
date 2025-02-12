@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,7 @@ public class Hud : MonoBehaviour
 {
     public GameObject XP_text;
     public GameObject DeathScene;
+    public GameObject savemanager;
     Animator animator;
     private float lerpTimer;
     public float maxHealth = 100f;
@@ -35,9 +37,13 @@ public class Hud : MonoBehaviour
     public GameObject help_sprite;
     public float XP_level;
     private Text xp_txt;
+    private float lasthealth = 100;
     public float is_winded_start_time = 0;
     public float is_winded_end_time = 0;
     public float is_winded_time_elapsed = 0;
+    public float is_hurt_start_time = 0;
+    public float is_hurt_end_time = 0;
+    public float is_hurt_time_elapsed = 0;
 
 
     // Start is called before the first frame update
@@ -51,21 +57,26 @@ public class Hud : MonoBehaviour
         XP_level = 0;
         UpdateStatsUI();
         inventory_sprite.SetActive(false);
+        health = Mathf.Clamp(health, 0, maxHealth);
+        stamina = Mathf.Clamp(stamina, 0, maxStamina);
+        hunger = Mathf.Clamp(hunger, 0, maxHunger);
+        thirst = Mathf.Clamp(thirst, 0, maxThirst);
     }
 
     // Update is called once per frame
     void Update()
     {
         is_winded_end_time = Time.time;
+        is_hurt_end_time = Time.time; 
+
         xp_txt.text = XP_level.ToString();
-        health = Mathf.Clamp(health, 0, maxHealth);
-        stamina = Mathf.Clamp(stamina, 0, maxStamina);
-        hunger = Mathf.Clamp(hunger, 0, maxHunger);
-        thirst = Mathf.Clamp(thirst, 0, maxThirst);
-        UpdateStatsUI();
-        LoseHunger(0.001f);
+
+        UpdateStatsUI(); // constantly triggers the check to change the UI to reflect current stat levels
+
+        LoseHunger(0.001f);// loses hunger and thirst every frame.
         LoseThirst(0.001f);
-        if (Input.GetKeyDown(KeyCode.M))
+
+        if (Input.GetKeyDown(KeyCode.M)) // these if statements are testing functions to artificially trigger stat change
         {
             GainHealth(Random.Range(5, 10));
         }
@@ -77,12 +88,13 @@ public class Hud : MonoBehaviour
         {
             GainXp(Random.Range(5, 10));
         }
-        if (Input.GetKey(KeyCode.LeftShift) && stamina > 0.5)
+
+        if (Input.GetKey(KeyCode.LeftShift) && stamina > 0.5) // sprinting code. 
         {
-            is_sprinting_bool = true;
-            LoseStamina(0.05f);
+            is_sprinting_bool = true; // triggers faster movement
+            LoseStamina(0.05f); // stat change
         }
-        if (stamina >= 30)
+        if (stamina >= 30) // these two if statements handle UI change in color of stamina bar based on stamina levels
         {
             staminaBarFiller.color = Color.white;
         }
@@ -90,13 +102,14 @@ public class Hud : MonoBehaviour
         {
             staminaBarFiller.color = Color.red;
         }
-        if (stamina <= 0.5) 
+        if (stamina <= 0.5) // turns off sprint if stamina is low.
         {
             is_sprinting_bool = false;
         }
+
         if (is_winded_start_time != 0)
         {
-            is_winded_time_elapsed = (is_winded_end_time - is_winded_start_time);
+            is_winded_time_elapsed = is_winded_end_time - is_winded_start_time;
             if (is_winded_time_elapsed >= 5)
             {
                 is_winded_end_time = 0;
@@ -127,6 +140,24 @@ public class Hud : MonoBehaviour
             DeathScene.SetActive(true);
             transform.position = DeathSceneTransform.position;
         }
+        if (health != lasthealth)
+        {
+            is_hurt_start_time = Time.time;
+        }
+        if (is_hurt_start_time != 0)
+        { 
+            is_hurt_time_elapsed = is_hurt_end_time - is_hurt_start_time;
+            if (is_hurt_time_elapsed >= 5)
+            {
+                is_hurt_end_time = 0;
+                is_hurt_start_time = 0;
+            }
+        }
+        if (is_hurt_time_elapsed >= 5)
+        {
+            GainHealth(0.01f);
+        }
+        lasthealth = health;
         if(Input.GetKeyDown(KeyCode.I)){
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
@@ -142,6 +173,7 @@ public class Hud : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             transform.position = RespawnPointTransform.position;
+            savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
         }
     }

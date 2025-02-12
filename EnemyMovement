@@ -21,7 +21,7 @@ public class EnemyMovement : MonoBehaviour
     public Animator leg_anim_3;
     public Animator leg_anim_4;
     public GameObject enemybody;
-    public int health;
+    public float health;
     public int max_health;
     public double timer = 10;
     public double atktimer = 10;

@@ -1,0 +1,21 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+[System.Serializable]
+public class PlayerData
+{
+    public float [] player_position;
+    public float health;
+    public float stamina;
+    public float thirst;
+    public float hunger;
+    public float level;
+    public float xp;
+    public string current_equip;
+    public float enemy_health_1;
+    public float [] enemy_position_1;
+    public float enemy_health_2; 
+    public float [] enemy_position_2;
+    public List<string> slot_name_list = new List<string>();
+    public List<int> slot_quantity_list = new List<int>();
+}
