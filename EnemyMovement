@@ -77,11 +77,11 @@ public class EnemyMovement : MonoBehaviour
             is_dead = true;
             animator.SetBool("IsDead", is_dead);
             enemybody.layer = 10;
-            player.GetComponent<Hud>().xp += 50;
             if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){ // checks if dead anim has started, to trigger timer
                 deathtimer -= 0.01;
                 if(deathtimer <= 0){ // after timer finishes, the enemy respawns and resets all stats
                     UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
+                    player.GetComponent<Hud>().xp += 50;
                     transform.position = enemyspawn;
                     enemybody.layer = 11;
                     is_dead = false;
