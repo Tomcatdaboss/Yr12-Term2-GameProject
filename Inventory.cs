@@ -8,6 +8,7 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     public bool already_mined = false;
+    public GameObject SaveManager;
     public List<GameObject> InventSlots = new List<GameObject>();
     public List<GameObject> EquipSlots = new List<GameObject>();
     public List<string> CraftingList = new List<string>();
@@ -165,7 +166,9 @@ public class Inventory : MonoBehaviour
     {
         if (itemPrefab.name != "Boat_Prefab") {
             Vector3 playerposition = new Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
-            Instantiate(itemPrefab, playerposition, Quaternion.identity);
+            GameObject construct = Instantiate(itemPrefab, playerposition, Quaternion.identity);
+            SaveManager.GetComponent<PlayerDataManager>().ConstructList.Add(construct);
+            Debug.Log("Spawned");
         } else if (itemPrefab.name == "Boat_Prefab" && gameObject.GetComponent<Hud>().thirst >= 99.5) {
             Vector3 playerposition = new Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
             Instantiate(itemPrefab, playerposition, Quaternion.identity);
