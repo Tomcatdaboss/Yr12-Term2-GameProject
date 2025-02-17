@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor.Build.Content;
 using UnityEngine;
+using UnityEngine.UIElements;
 public class PlayerDataManager : MonoBehaviour
 {
     public GameObject player;
@@ -12,7 +13,11 @@ public class PlayerDataManager : MonoBehaviour
     public GameObject enemy2;
     private int iterate_names;
     private int iterate_quants;
+    private int iterate_constructs_coords;
+    private int iterate_constructs_names;
     public List <GameObject> SlotList;
+    public List <GameObject> ConstructList;
+    public GameObject campfire;
     //public void Start(){
         //LoadGame();
     //}
@@ -27,7 +32,9 @@ public class PlayerDataManager : MonoBehaviour
     }
     public void SaveGame() {
         iterate_names = 0;
-        iterate_quants = 0;        
+        iterate_quants = 0;  
+        iterate_constructs_coords = 0;
+        iterate_constructs_names = 0;      
         PlayerData playerData = new PlayerData();
         playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z};
         playerData.health = player.GetComponent<Hud>().health;
@@ -49,6 +56,18 @@ public class PlayerDataManager : MonoBehaviour
             playerData.slot_quantity_list.Add(SlotList[iterate_quants].GetComponent<Slot>().quantity);
             iterate_quants += 1;
         }
+        if(ConstructList.Count > 0){
+            while (iterate_constructs_coords <= ConstructList.Count) {
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.x);
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.y);
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.z);
+            iterate_constructs_coords += 1;
+            }
+            while (iterate_constructs_names <= ConstructList.Count) {
+            playerData.recorded_construct_names.Add(ConstructList[iterate_constructs_names].name);
+            iterate_constructs_names += 1;
+            }
+        }
         string json = JsonUtility.ToJson(playerData);
         string path = Application.persistentDataPath + "/playerData.json";
         System.IO.File.WriteAllText(path, json);
@@ -59,6 +78,9 @@ public class PlayerDataManager : MonoBehaviour
         if (System.IO.File.Exists(path)){
             iterate_names = 0;
             iterate_quants = 0;
+            iterate_constructs_coords = 0;
+            iterate_constructs_names = 0;
+            int constructnum = ConstructList.Count;
             string json = System.IO.File.ReadAllText(path);
             PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
             player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
@@ -89,6 +111,21 @@ public class PlayerDataManager : MonoBehaviour
                 SlotList[iterate_quants].GetComponent<Slot>().quantity = loadedData.slot_quantity_list[iterate_quants];
                 iterate_quants += 1;
             }
+            if (constructnum > 0){
+                while (iterate_constructs_coords < constructnum){
+                    Destroy(ConstructList[iterate_constructs_coords]);
+                    iterate_constructs_coords += 1;
+                }
+                iterate_constructs_coords = 0;
+                while (iterate_constructs_coords <= ConstructList.Count * 3)
+                {
+                Vector3 spawn_position = new Vector3(loadedData.recorded_construct_coords[iterate_constructs_coords + 1],loadedData.recorded_construct_coords[iterate_constructs_coords],loadedData.recorded_construct_coords[iterate_constructs_coords + 2]);
+                if (loadedData.recorded_construct_names[iterate_constructs_names] == "Campfire"){
+                    player.GetComponent<Inventory>().SpawnConstruct(campfire, spawn_position);
+                }
+                iterate_constructs_coords += 3;
+                }
+            }    
         } else {
             Debug.LogWarning("Error: Save File not found");
         }
