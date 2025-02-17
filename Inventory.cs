@@ -162,15 +162,17 @@ public class Inventory : MonoBehaviour
         } 
       }
     }
-    public void SpawnDroppedItem(GameObject itemPrefab) // for spawning constructs - unfinished!
+    public void StartSpawnProcess(GameObject itemPrefab){
+      Vector3 playerposition = new Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
+      SpawnConstruct(itemPrefab, playerposition);
+    }
+    public void SpawnConstruct(GameObject itemPrefab, Vector3 playerposition) // for spawning constructs - unfinished!
     {
         if (itemPrefab.name != "Boat_Prefab") {
-            Vector3 playerposition = new Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
             GameObject construct = Instantiate(itemPrefab, playerposition, Quaternion.identity);
             SaveManager.GetComponent<PlayerDataManager>().ConstructList.Add(construct);
             Debug.Log("Spawned");
-        } else if (itemPrefab.name == "Boat_Prefab" && gameObject.GetComponent<Hud>().thirst >= 99.5) {
-            Vector3 playerposition = new Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
+        } else if (itemPrefab.name == "Boat_Prefab" && gameObject.GetComponent<Hud>().thirst >= 99.5){
             Instantiate(itemPrefab, playerposition, Quaternion.identity);
         } else {
             Debug.Log("You can't construct the ship on land! Stand in the water.");
