@@ -14,6 +14,8 @@ public class Inventory : MonoBehaviour
     public List<string> CraftingList = new List<string>();
     private GameObject used_slot = null;
     public GameObject equip_controller;
+    public GameObject campUI;
+    public GameObject campbutton;
     // Start is called before the first frame update
     void Start()
     {   
@@ -171,6 +173,11 @@ public class Inventory : MonoBehaviour
         if (itemPrefab.name != "Boat_Prefab") {
             GameObject construct = Instantiate(itemPrefab, playerposition, Quaternion.identity);
             SaveManager.GetComponent<PlayerDataManager>().ConstructList.Add(construct);
+            if(construct.tag == "Campfire"){
+              construct.GetComponent<CampfireController>().UI = campUI;
+              construct.GetComponent<CampfireController>().button = campbutton;
+              construct.GetComponent<CampfireController>().player = gameObject;
+            }
             Debug.Log("Spawned");
         } else if (itemPrefab.name == "Boat_Prefab" && gameObject.GetComponent<Hud>().thirst >= 99.5){
             Instantiate(itemPrefab, playerposition, Quaternion.identity);
