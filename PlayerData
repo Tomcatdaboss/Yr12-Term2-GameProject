@@ -18,4 +18,6 @@ public class PlayerData
     public float [] enemy_position_2;
     public List<string> slot_name_list = new List<string>();
     public List<int> slot_quantity_list = new List<int>();
+    public List<float> recorded_construct_coords = new List<float>();
+    public List<string> recorded_construct_tags = new List<string>();
 }
