@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor.Build.Content;
 using UnityEngine;
+using UnityEngine.UIElements;
 public class PlayerDataManager : MonoBehaviour
 {
     public GameObject player;
@@ -12,7 +13,11 @@ public class PlayerDataManager : MonoBehaviour
     public GameObject enemy2;
     private int iterate_names;
     private int iterate_quants;
+    private int iterate_constructs_coords;
+    private int iterate_constructs_tags;
     public List <GameObject> SlotList;
+    public List <GameObject> ConstructList;
+    public GameObject campfire;
     //public void Start(){
         //LoadGame();
     //}
@@ -27,7 +32,9 @@ public class PlayerDataManager : MonoBehaviour
     }
     public void SaveGame() {
         iterate_names = 0;
-        iterate_quants = 0;        
+        iterate_quants = 0;  
+        iterate_constructs_coords = 0;
+        iterate_constructs_tags = 0;      
         PlayerData playerData = new PlayerData();
         playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z};
         playerData.health = player.GetComponent<Hud>().health;
@@ -49,6 +56,18 @@ public class PlayerDataManager : MonoBehaviour
             playerData.slot_quantity_list.Add(SlotList[iterate_quants].GetComponent<Slot>().quantity);
             iterate_quants += 1;
         }
+        if(ConstructList.Count > 0){
+            while (iterate_constructs_coords < ConstructList.Count) {
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.x);
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.y);
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.z);
+                iterate_constructs_coords += 1;
+            }
+            while (iterate_constructs_tags < ConstructList.Count) {
+            playerData.recorded_construct_tags.Add(ConstructList[iterate_constructs_tags].tag);
+            iterate_constructs_tags += 1;
+            }
+        }
         string json = JsonUtility.ToJson(playerData);
         string path = Application.persistentDataPath + "/playerData.json";
         System.IO.File.WriteAllText(path, json);
@@ -59,8 +78,12 @@ public class PlayerDataManager : MonoBehaviour
         if (System.IO.File.Exists(path)){
             iterate_names = 0;
             iterate_quants = 0;
+            iterate_constructs_coords = 0;
+            iterate_constructs_tags = 0;
             string json = System.IO.File.ReadAllText(path);
             PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
+            int current_constructnum = ConstructList.Count;
+            iterate_constructs_tags = 0;
             player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
             Vector3 loadedPosition = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
             player.transform.position = loadedPosition;
@@ -89,9 +112,28 @@ public class PlayerDataManager : MonoBehaviour
                 SlotList[iterate_quants].GetComponent<Slot>().quantity = loadedData.slot_quantity_list[iterate_quants];
                 iterate_quants += 1;
             }
-        } else {
-            Debug.LogWarning("Error: Save File not found");
+            if (current_constructnum > 0){
+                iterate_constructs_tags = 0;
+                Debug.Log("destroying");
+                while (iterate_constructs_tags < current_constructnum){
+                    GameObject current_object = ConstructList[iterate_constructs_tags];
+                    ConstructList.Remove(current_object);
+                    Destroy(current_object);
+                    iterate_constructs_tags += 1;
+                }
+                iterate_constructs_tags = 0;
+            }
+            if (loadedData.recorded_construct_tags.Count > 0) {    
+                while (iterate_constructs_coords < loadedData.recorded_construct_coords.Count)
+                {
+                    Vector3 spawn_position = new Vector3(loadedData.recorded_construct_coords[iterate_constructs_coords],loadedData.recorded_construct_coords[iterate_constructs_coords + 1],loadedData.recorded_construct_coords[iterate_constructs_coords + 2]);
+                    if (loadedData.recorded_construct_tags[iterate_constructs_tags] == "Campfire"){
+                        player.GetComponent<Inventory>().SpawnConstruct(campfire, spawn_position);
+                    }
+                    iterate_constructs_coords += 3;
+                    iterate_constructs_tags += 1;
+                }
+            }
         }
-        
     }
 }

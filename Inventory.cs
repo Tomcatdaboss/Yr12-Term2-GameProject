@@ -8,11 +8,14 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     public bool already_mined = false;
+    public GameObject SaveManager;
     public List<GameObject> InventSlots = new List<GameObject>();
     public List<GameObject> EquipSlots = new List<GameObject>();
     public List<string> CraftingList = new List<string>();
     private GameObject used_slot = null;
     public GameObject equip_controller;
+    public GameObject campUI;
+    public GameObject campbutton;
     // Start is called before the first frame update
     void Start()
     {   
@@ -160,6 +163,27 @@ public class Inventory : MonoBehaviour
           already_mined = false;
         } 
       }
+    }
+    public void StartSpawnProcess(GameObject itemPrefab){
+      Vector3 playerposition = new Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
+      SpawnConstruct(itemPrefab, playerposition);
+    }
+    public void SpawnConstruct(GameObject itemPrefab, Vector3 playerposition) // for spawning constructs - unfinished!
+    {
+        if (itemPrefab.name != "Boat_Prefab") {
+            GameObject construct = Instantiate(itemPrefab, playerposition, Quaternion.identity);
+            SaveManager.GetComponent<PlayerDataManager>().ConstructList.Add(construct);
+            if(construct.tag == "Campfire"){
+              construct.GetComponent<CampfireController>().UI = campUI;
+              construct.GetComponent<CampfireController>().button = campbutton;
+              construct.GetComponent<CampfireController>().player = gameObject;
+            }
+            Debug.Log("Spawned");
+        } else if (itemPrefab.name == "Boat_Prefab" && gameObject.GetComponent<Hud>().thirst >= 99.5){
+            Instantiate(itemPrefab, playerposition, Quaternion.identity);
+        } else {
+            Debug.Log("You can't construct the ship on land! Stand in the water.");
+        }
     }
     
 }
