@@ -1,37 +1,61 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class CampfireController : MonoBehaviour
 {
-    public GameObject fire;
+    public ParticleSystem fire;
     public GameObject UI;
     public GameObject button;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    public GameObject player;
+    void Start(){
+        player = GameObject.Find("Player");
+        fire = GetComponentInChildren<ParticleSystem>();
+        fire.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-    }
-    public void OnTriggerEnter(Collider collider) {
-        if(collider.gameObject.name == "Player"){
-            CampfireReady();
-            if (Input.GetKeyDown(KeyCode.C)){
-                CampfireActivate();
-            }
+        if(Input.GetKeyDown(KeyCode.Escape)){
+            fire.gameObject.SetActive(false);
+            button.SetActive(false);
+            UI.SetActive(false);
         }
     }
+    public void OnTriggerStay(Collider collider) {
+        if(collider.gameObject.name == "Player"){
+            CampfireReady();
+            if(UI.activeSelf){
+                if(Input.GetKeyDown(KeyCode.C)){
+                    CampfireCook();
+                }
+            }
+            else if (Input.GetKey(KeyCode.C)){
+                CampfireActivate();
+                Debug.Log("Activated");
+            }  
+        }
+    }
+    public void OnTriggerExit(Collider collider)
+    {
+        fire.gameObject.SetActive(false);
+        button.SetActive(false);
+        UI.SetActive(false);
+    }    
     public void CampfireReady(){
         button.SetActive(true);
     }
     public void CampfireActivate(){
-        fire.SetActive(true);
-        UI.SetActive(true);
+        fire.gameObject.SetActive(true);
         button.SetActive(false);
+        UI.SetActive(true);
+    }
+    public void CampfireCook(){
+        player.GetComponent<Inventory>().AddToList("Wood");
+        player.GetComponent<Inventory>().AddToList("Uncooked Meat");
+        player.GetComponent<Inventory>().Run_Crafting_Func("Cooked Meat");
     }
 }
