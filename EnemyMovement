@@ -9,12 +9,14 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 public class EnemyMovement : MonoBehaviour
 {
     public Transform player;
     private bool player_found = false;
     private bool at_position = false;
+    public GameObject detector;
     public Animator animator;
     public Animator leg_anim_1;
     public Animator leg_anim_2;
@@ -29,8 +31,8 @@ public class EnemyMovement : MonoBehaviour
     private float new_x;
     private float new_z;
     public int minimum_distance;
-    bool is_moving = true;
-    bool is_dead = false;
+    private bool is_moving = true;
+    private bool is_dead = false;
 
     // Start is called before the first frame update
     void Start()
@@ -76,6 +78,7 @@ public class EnemyMovement : MonoBehaviour
             // triggers dead animation, locks down all other functions, turns enemy to "meat" layer.
             is_dead = true;
             animator.SetBool("IsDead", is_dead);
+            detector.SetActive(false);
             enemybody.layer = 10;
             if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){ // checks if dead anim has started, to trigger timer
                 deathtimer -= 0.01;
@@ -84,10 +87,13 @@ public class EnemyMovement : MonoBehaviour
                     player.GetComponent<Hud>().xp += 50;
                     transform.position = enemyspawn;
                     enemybody.layer = 11;
+                    detector.SetActive(true);
                     is_dead = false;
                     animator.SetBool("IsDead", is_dead);
                     health = max_health;
                     deathtimer = 10;
+                    timer = 10;
+                    player_found = false;
                 }
             }
         }
