@@ -170,11 +170,21 @@ public class Hud : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.H)){
             help_sprite.SetActive(true);
         }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
+        if (Input.GetKeyDown(KeyCode.R)){
             transform.position = RespawnPointTransform.position;
             savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
+        }
+        if(Input.GetKeyDown(KeyCode.E)){
+            Debug.Log("registering key");
+            Debug.Log(gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity);
+            if ((gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity - 1) >= 0){
+                gameObject.GetComponent<Inventory>().InsertSlot("Cooked Meat", -1, true);
+                Debug.Log("RightPath");
+                LoseHunger(-20);
+            } else {
+                Debug.Log("Wrong Path");
+            }
         }
     }
 
