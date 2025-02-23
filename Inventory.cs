@@ -46,7 +46,7 @@ public class Inventory : MonoBehaviour
     public void Run_Crafting_Func(string output_name){
       bool enough_material = true;
       foreach(var x in CraftingList){
-        if (FindSlot(x, InventSlots).GetComponent<Slot>().quantity - 1 >= 0){
+        if (FindSlot(x, InventSlots, true).GetComponent<Slot>().quantity - 1 >= 0){
           InsertSlot(x, -1, true);
         }
         else {
@@ -68,7 +68,7 @@ public class Inventory : MonoBehaviour
         Debug.Log(enough_material);
       }
     }
-    public GameObject FindSlot(string given_name, List<GameObject> TypeSlots)
+    public GameObject FindSlot(string given_name, List<GameObject> TypeSlots, bool adding)
     {
       if (TypeSlots == InventSlots){
           int i = 0;
@@ -77,7 +77,7 @@ public class Inventory : MonoBehaviour
             {
               return InventSlots[i];
             } 
-            else if (InventSlots[i].GetComponent<Slot>().item_name == "empty")
+            else if (InventSlots[i].GetComponent<Slot>().item_name == "empty" && adding == true)
             {
               return InventSlots[i];
             }
@@ -106,9 +106,9 @@ public class Inventory : MonoBehaviour
     public void InsertSlot(string new_item_name, int quantity, bool isInvent)
     {
       if(isInvent){
-        used_slot = FindSlot(new_item_name, InventSlots);
+        used_slot = FindSlot(new_item_name, InventSlots, true);
       }else{
-        used_slot = FindSlot(new_item_name, EquipSlots);
+        used_slot = FindSlot(new_item_name, EquipSlots, true);
         Debug.Log("EquipPathTaken");
       }
        if (used_slot == null){
