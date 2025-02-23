@@ -177,6 +177,7 @@ public class Hud : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.R)){
             transform.position = RespawnPointTransform.position;
+            savemanager.GetComponent<PlayerDataManager>().DeathResetGame();
             savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
         }
