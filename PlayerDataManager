@@ -18,9 +18,13 @@ public class PlayerDataManager : MonoBehaviour
     public List <GameObject> SlotList;
     public List <GameObject> ConstructList;
     public GameObject campfire;
-    //public void Start(){
-        //LoadGame();
-    //}
+    public void Start(){
+        LoadGame();
+    }
+    void OnApplicationQuit()
+    {
+        SaveGame();
+    }
     public void Update()
     {
         if(Input.GetKeyDown(KeyCode.Q)){
