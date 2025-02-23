@@ -140,4 +140,22 @@ public class PlayerDataManager : MonoBehaviour
             }
         }
     }
+    public void DeathResetGame() {
+        iterate_names = 4;
+        iterate_quants = 4;
+        player.GetComponent<Hud>().health = 100;
+        player.GetComponent<Hud>().stamina = 100;
+        player.GetComponent<Hud>().hunger = 100;
+        player.GetComponent<Hud>().thirst = 100;
+        while (iterate_names <= 18)
+        {
+            SlotList[iterate_names].GetComponent<Slot>().item_name = "empty";
+            iterate_names += 1;
+        }
+        while (iterate_quants <= 18)
+        {
+            SlotList[iterate_quants].GetComponent<Slot>().quantity = 0;
+            iterate_quants += 1;
+        }
+    }
 }
