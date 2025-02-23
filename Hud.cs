@@ -75,6 +75,11 @@ public class Hud : MonoBehaviour
 
         LoseHunger(0.001f);// loses hunger and thirst every frame.
         LoseThirst(0.001f);
+        if (hunger <= 1){
+            GainHealth(-0.01f);
+        }else if (thirst <= 1){
+            GainHealth(-0.01f);
+        }
 
         if (Input.GetKeyDown(KeyCode.M)) // these if statements are testing functions to artificially trigger stat change
         {
