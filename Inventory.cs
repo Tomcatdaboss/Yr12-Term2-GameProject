@@ -55,11 +55,13 @@ public class Inventory : MonoBehaviour
       }
       CraftingList.Clear();
       if (enough_material){
-        if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe"){
+        if(output_name == "Campfire")
+        {
+          Debug.Log("Campfire");
+        } else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe"){
           InsertSlot(output_name, 1, true);
           Debug.Log(output_name);
-        } 
-        else{
+        } else{
           InsertSlot(output_name, 1, false);
           Debug.Log("EquipSlots");
         }
@@ -157,6 +159,21 @@ public class Inventory : MonoBehaviour
         if(other.gameObject.layer == 11 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
           other.gameObject.GetComponentInParent<EnemyMovement>().health -= 10;
           gameObject.GetComponent<Hud>().xp += 3;
+          already_mined = true;
+        }
+        if(equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+          already_mined = false;
+        } 
+      }
+      if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Sickle"){
+        if(other.gameObject.layer == 12 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
+          InsertSlot("Fiber", 1, true);
+          gameObject.GetComponent<Hud>().xp += 2;
+          already_mined = true;
+        }
+        if(other.gameObject.layer == 10 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
+          InsertSlot("Hide", 1, true);
+          gameObject.GetComponent<Hud>().xp += 2;
           already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
