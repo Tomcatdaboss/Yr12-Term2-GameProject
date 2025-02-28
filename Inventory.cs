@@ -58,7 +58,7 @@ public class Inventory : MonoBehaviour
         if(output_name == "Campfire")
         {
           Debug.Log("Campfire");
-        } else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe"){
+        } else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle"){
           InsertSlot(output_name, 1, true);
           Debug.Log(output_name);
         } else{
