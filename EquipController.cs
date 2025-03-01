@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class EquipController : MonoBehaviour
 {
-    //testing
     public GameObject axe_obj;
     public GameObject pickaxe_obj;
     public GameObject spear_obj;
