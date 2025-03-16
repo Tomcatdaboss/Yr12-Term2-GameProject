@@ -1,0 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CraftingLevelChecker : MonoBehaviour
+{
+    public GameObject level_overlay;
+    public Hud player;
+    public int required_level;
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (player.XP_level < required_level){
+            level_overlay.SetActive(true);
+        } else {
+            level_overlay.SetActive(false);
+        }
+    }
+}
