@@ -16,6 +16,7 @@ public class Inventory : MonoBehaviour
     public GameObject equip_controller;
     public GameObject campUI;
     public GameObject campbutton;
+    public GameObject boat_obj;
     // Start is called before the first frame update
     void Start()
     {   
@@ -58,6 +59,9 @@ public class Inventory : MonoBehaviour
         if(output_name == "Campfire")
         {
           Debug.Log("Campfire");
+        }
+        else if (output_name == "Ship"){
+          Debug.Log("ship");
         } else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle"){
           InsertSlot(output_name, 1, true);
           Debug.Log(output_name);
@@ -187,7 +191,7 @@ public class Inventory : MonoBehaviour
     }
     public void SpawnConstruct(GameObject itemPrefab, Vector3 playerposition) // for spawning constructs - unfinished!
     {
-        if (itemPrefab.name != "Boat_Prefab") {
+        if (itemPrefab.tag != "Boat") {
             GameObject construct = Instantiate(itemPrefab, playerposition, Quaternion.identity);
             SaveManager.GetComponent<PlayerDataManager>().ConstructList.Add(construct);
             if(construct.tag == "Campfire"){
@@ -196,10 +200,9 @@ public class Inventory : MonoBehaviour
               construct.GetComponent<CampfireController>().player = gameObject;
             }
             Debug.Log("Spawned");
-        } else if (itemPrefab.name == "Boat_Prefab" && gameObject.GetComponent<Hud>().thirst >= 99.5){
-            Instantiate(itemPrefab, playerposition, Quaternion.identity);
-        } else {
-            Debug.Log("You can't construct the ship on land! Stand in the water.");
+        } else if (itemPrefab.tag == "Boat"){
+            boat_obj.SetActive(true);
+            SaveManager.GetComponent<PlayerDataManager>().SaveGame();
         }
     }
     
