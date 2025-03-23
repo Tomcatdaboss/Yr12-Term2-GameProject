@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditor.ShaderGraph;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +9,8 @@ public class Hud : MonoBehaviour
 {
     public GameObject XP_text;
     public GameObject DeathScene;
+    public GameObject WinScene;
+    public GameObject Win_button;
     public GameObject savemanager;
     Animator animator;
     private float lerpTimer;
@@ -163,6 +165,11 @@ public class Hud : MonoBehaviour
             GainHealth(0.01f);
         }
         lasthealth = health;
+
+        if(Input.GetKeyDown(KeyCode.S) && Win_button.activeSelf == true){
+            WinGame();
+        }
+
         if(Input.GetKeyDown(KeyCode.I)){
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
@@ -180,18 +187,15 @@ public class Hud : MonoBehaviour
             savemanager.GetComponent<PlayerDataManager>().DeathResetGame();
             savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
+            WinScene.SetActive(false);
         }
         if(Input.GetKeyDown(KeyCode.E)){
-            Debug.Log("registering key");
-            Debug.Log(gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity);
             if ((gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity - 1) >= 0){
                 gameObject.GetComponent<Inventory>().InsertSlot("Cooked Meat", -1, true);
-                Debug.Log("RightPath");
                 LoseHunger(-20);
-            } else {
-                Debug.Log("Wrong Path");
             }
         }
+
     }
 
     public void UpdateStatsUI()
@@ -295,6 +299,17 @@ public class Hud : MonoBehaviour
 
     }
 
+    public void OnCollisionStay(Collision collider) {
+        if(collider.gameObject.tag == "Boat"){
+            Win_button.SetActive(true);
+        }
+    }
+    public void OnCollisionExit(Collision collider) {
+        if(collider.gameObject.tag == "Boat"){
+            Win_button.SetActive(false);
+        }
+    }
+
     public void GainHealth(float statAmount)
     {
         health += statAmount;
@@ -317,5 +332,11 @@ public class Hud : MonoBehaviour
     {
         stamina -= staminaAmount;
         is_winded_start_time = 0;
+    }
+    public void WinGame(){
+        health = 100;
+        WinScene.SetActive(true);
+        transform.position = DeathSceneTransform.position;
+        savemanager.GetComponent<PlayerDataManager>().SaveGame();
     }
 }
