@@ -190,9 +190,12 @@ public class Hud : MonoBehaviour
             WinScene.SetActive(false);
         }
         if(Input.GetKeyDown(KeyCode.E)){
-            if ((gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity - 1) >= 0){
-                gameObject.GetComponent<Inventory>().InsertSlot("Cooked Meat", -1, true);
-                LoseHunger(-20);
+            GameObject prospective_meat_slot = gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false);
+            if (prospective_meat_slot != null) {
+                if ((gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity - 1) >= 0){
+                    gameObject.GetComponent<Inventory>().InsertSlot("Cooked Meat", -1, true);
+                    LoseHunger(-20);
+                }
             }
         }
 
