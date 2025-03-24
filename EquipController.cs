@@ -27,7 +27,7 @@ public class EquipController : MonoBehaviour
     void Update()
     {
         // the following if statements handle the switching of active equip objects, and triggers the mining animation and variable that triggers resource gathering.
-        // the code is essentially the same for each of the three tools, so I will only detail the first one.
+        // the code is essentially the same for each of the four tools, so I will only detail the first one.
         if (current_obj_selected == "empty"){ // sets all tools to deactivated.
             pickaxe_obj.SetActive(false);
             axe_obj.SetActive(false);
@@ -47,7 +47,7 @@ public class EquipController : MonoBehaviour
                 pick_animator.SetBool("Mining", is_mining);
             }
         }   
-        if (current_obj_selected == "Axe"){
+        if (current_obj_selected == "Axe"){ // see 'pickaxe' version of this
             spear_obj.SetActive(false);
             axe_obj.SetActive(true);
             pickaxe_obj.SetActive(false);
@@ -60,7 +60,7 @@ public class EquipController : MonoBehaviour
                 axe_animator.SetBool("Mining", is_mining);
             }
         }
-        if (current_obj_selected == "Spear"){
+        if (current_obj_selected == "Spear"){ // see 'pickaxe' version of this
             spear_obj.SetActive(true);
             axe_obj.SetActive(false);
             pickaxe_obj.SetActive(false);
@@ -73,7 +73,7 @@ public class EquipController : MonoBehaviour
                 spear_animator.SetBool("Is_Mining", is_mining);
             }
         }
-        if (current_obj_selected == "Sickle"){
+        if (current_obj_selected == "Sickle"){ // see 'pickaxe' version of this
             spear_obj.SetActive(false);
             axe_obj.SetActive(false);
             pickaxe_obj.SetActive(false);
