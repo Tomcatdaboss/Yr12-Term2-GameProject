@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
 
 public class CameraMovementScript : MonoBehaviour
 {
-    // mouse direction
     public Transform player;
     public float mouseSensitivity = 2f;
     public bool isMoving = false;
@@ -23,6 +23,7 @@ public class CameraMovementScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     { 
+        // the if statement checks if inventory or the help screen is active, then if no, locks the cursor.
         if(inventory_sprite.activeSelf == false && help_obj.activeSelf == false){ // testing that they are not in inventory
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
