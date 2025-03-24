@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 [System.Serializable]
+// this is a class containing the 'state' of the game - all the important variables used to define the player's context and progression. It is used to store data in the save file.
 public class PlayerData
 {
     public float [] player_position;
