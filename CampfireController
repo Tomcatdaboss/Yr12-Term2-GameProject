@@ -11,6 +11,7 @@ public class CampfireController : MonoBehaviour
     public GameObject button;
     public GameObject player;
     void Start(){
+        // defines needed objects for the fire
         player = GameObject.Find("Player");
         fire = GetComponentInChildren<ParticleSystem>();
         fire.gameObject.SetActive(false);
@@ -19,6 +20,7 @@ public class CampfireController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // this function detects if the player closes the campfire screen
         if(Input.GetKeyDown(KeyCode.Escape)){
             fire.gameObject.SetActive(false);
             button.SetActive(false);
@@ -26,36 +28,37 @@ public class CampfireController : MonoBehaviour
         }
     }
     public void OnTriggerStay(Collider collider) {
+        // this checks if the player is close enough for the menu button to pop up
         if(collider.gameObject.name == "Player"){
             CampfireReady();
-            if(UI.activeSelf){
+            if(UI.activeSelf){ // if the menu is already active, pressing C cooks the meat.
                 if(Input.GetKeyDown(KeyCode.C)){
                     CampfireCook();
                 }
             }
-            else if (Input.GetKey(KeyCode.C)){
+            else if (Input.GetKey(KeyCode.C)){ // if the menu is not already active, pressing C opens the menu
                 CampfireActivate();
                 Debug.Log("Activated");
             }  
         }
     }
     public void OnTriggerExit(Collider collider)
-    {
+    { // closes the menu when the player moves out of range
         fire.gameObject.SetActive(false);
         button.SetActive(false);
         UI.SetActive(false);
     }    
-    public void CampfireReady(){
+    public void CampfireReady(){ // turns on the menu button
         button.SetActive(true);
     }
-    public void CampfireActivate(){
+    public void CampfireActivate(){ // opens the menu
         fire.gameObject.SetActive(true);
         button.SetActive(false);
         UI.SetActive(true);
     }
-    public void CampfireCook(){
+    public void CampfireCook(){ // cooks the meat
         player.GetComponent<Inventory>().AddToList("Wood");
-        player.GetComponent<Inventory>().AddToList("Uncooked Meat");
+        player.GetComponent<Inventory>().AddToList("Raw Meat");
         player.GetComponent<Inventory>().Run_Crafting_Func("Cooked Meat");
     }
 }
