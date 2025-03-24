@@ -37,6 +37,7 @@ public class Hud : MonoBehaviour
     public GameObject inventory_sprite;
     public GameObject crafting_sprite;
     public GameObject help_sprite;
+    public GameObject start_sprite;
     public float XP_level;
     private Text xp_txt;
     private float lasthealth = 100;
@@ -177,7 +178,8 @@ public class Hud : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Escape)){
             inventory_sprite.SetActive(false);
             crafting_sprite.SetActive(false);
-            help_sprite.SetActive(false);         
+            help_sprite.SetActive(false); 
+            start_sprite.SetActive(false);         
         }
         if(Input.GetKeyDown(KeyCode.H)){
             help_sprite.SetActive(true);
