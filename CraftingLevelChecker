@@ -10,7 +10,7 @@ public class CraftingLevelChecker : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    { // checks if the player's level is high enough to access that recipe.
         if (player.XP_level < required_level){
             level_overlay.SetActive(true);
         } else {
