@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
-using UnityEditor.Build.Content;
 using UnityEngine;
 using UnityEngine.UIElements;
 public class PlayerDataManager : MonoBehaviour
@@ -18,16 +17,16 @@ public class PlayerDataManager : MonoBehaviour
     public List <GameObject> SlotList;
     public List <GameObject> ConstructList;
     public GameObject campfire;
-    public void Start(){
-        LoadGame();
+    public void Start(){ // this reloads the last save when the game is started. 
+        //LoadGame();
     }
-    void OnApplicationQuit()
+    void OnApplicationQuit() // saves the game when the game is closed.
     {
-        SaveGame();
+        //SaveGame();
     }
     public void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Q)){
+        if(Input.GetKeyDown(KeyCode.Q)){ // buttons to save and load the savefile.
             SaveGame();
         }
         if(Input.GetKeyDown(KeyCode.L)){
@@ -35,32 +34,32 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
     public void SaveGame() {
-        iterate_names = 0;
+        iterate_names = 0; // initialising values
         iterate_quants = 0;  
         iterate_constructs_coords = 0;
         iterate_constructs_tags = 0;      
-        PlayerData playerData = new PlayerData();
-        playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z};
-        playerData.health = player.GetComponent<Hud>().health;
+        PlayerData playerData = new PlayerData(); // creates new instance of playerData
+        playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z}; // saving player position
+        playerData.health = player.GetComponent<Hud>().health; // saving stats
         playerData.stamina = player.GetComponent<Hud>().stamina;
         playerData.hunger = player.GetComponent<Hud>().hunger;
         playerData.thirst = player.GetComponent<Hud>().thirst;
         playerData.level = player.GetComponent<Hud>().XP_level;
         playerData.xp = player.GetComponent<Hud>().xp;
-        playerData.current_equip = player.GetComponentInChildren<EquipController>().current_obj_selected;
-        playerData.enemy_health_1 = enemy1.GetComponent<EnemyMovement>().health;
+        playerData.current_equip = player.GetComponentInChildren<EquipController>().current_obj_selected; // saving equipped object
+        playerData.enemy_health_1 = enemy1.GetComponent<EnemyMovement>().health; // saving enemy health and position
         playerData.enemy_health_2 = enemy2.GetComponent<EnemyMovement>().health;
         playerData.enemy_position_1 = new float [] {enemy1.transform.position.x, enemy1.transform.position.y, enemy1.transform.position.z};
         playerData.enemy_position_2 = new float [] {enemy2.transform.position.x, enemy2.transform.position.y, enemy2.transform.position.z};
-        while (iterate_names <= 18) {
+        while (iterate_names <= 18) { // goes throguh inventory and adds all the names of the slots in the slotlist to the playerData instance
             playerData.slot_name_list.Add(SlotList[iterate_names].GetComponent<Slot>().item_name);            
             iterate_names += 1;
         }
-        while (iterate_quants <= 18) {
+        while (iterate_quants <= 18) { // goes through inventory and adds all the quanities of items of the slots in the slotlist to the playerData instance
             playerData.slot_quantity_list.Add(SlotList[iterate_quants].GetComponent<Slot>().quantity);
             iterate_quants += 1;
         }
-        if(ConstructList.Count > 0){
+        if(ConstructList.Count > 0){ // if there are any constructs currently, this goes through the list and records their positions and tags in the playerData instance
             while (iterate_constructs_coords < ConstructList.Count) {
                 playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.x);
                 playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.y);
@@ -72,33 +71,33 @@ public class PlayerDataManager : MonoBehaviour
             iterate_constructs_tags += 1;
             }
         }
-        string json = JsonUtility.ToJson(playerData);
+        string json = JsonUtility.ToJson(playerData); // serialises the playerData instance and saves it in a json file.
         string path = Application.persistentDataPath + "/playerData.json";
         System.IO.File.WriteAllText(path, json);
         
     }
     public void LoadGame() {
-        string path = Application.persistentDataPath + "/playerData.json";
-        if (System.IO.File.Exists(path)){
-            iterate_names = 0;
-            iterate_quants = 0;
+        string path = Application.persistentDataPath + "/playerData.json"; // finds the saved playerData
+        if (System.IO.File.Exists(path)){ // if there has been a save in the past then:
+            iterate_names = 0; // initialising values
+            iterate_quants = 0; 
             iterate_constructs_coords = 0;
             iterate_constructs_tags = 0;
             string json = System.IO.File.ReadAllText(path);
-            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json);
+            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json); // reads the saved playerData and creates a new instance of playerData called loadedData with the information from the save in it
             int current_constructnum = ConstructList.Count;
             iterate_constructs_tags = 0;
-            player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
+            player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]); // loads player position
             Vector3 loadedPosition = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
             player.transform.position = loadedPosition;
-            player.GetComponent<Hud>().health = loadedData.health;
+            player.GetComponent<Hud>().health = loadedData.health; // resets stats to their loaded values
             player.GetComponent<Hud>().stamina = loadedData.stamina;
             player.GetComponent<Hud>().hunger = loadedData.hunger;
             player.GetComponent<Hud>().thirst = loadedData.thirst;
             player.GetComponent<Hud>().XP_level = loadedData.level;
             player.GetComponent<Hud>().xp = loadedData.xp;
-            player.GetComponentInChildren<EquipController>().current_obj_selected = loadedData.current_equip;
-            enemy1.GetComponent<EnemyMovement>().health = loadedData.health;
+            player.GetComponentInChildren<EquipController>().current_obj_selected = loadedData.current_equip; // replaces current object with the loaded object
+            enemy1.GetComponent<EnemyMovement>().health = loadedData.health; // loads enemy heath and position
             enemy1.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
             Vector3 loadedPosition_enemy1 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
             enemy1.transform.position = loadedPosition_enemy1;
@@ -106,17 +105,17 @@ public class PlayerDataManager : MonoBehaviour
             enemy2.transform.position = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
             Vector3 loadedPosition_enemy2 = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
             enemy2.transform.position = loadedPosition_enemy2;
-            while (iterate_names <= 18)
+            while (iterate_names <= 18) // loads the names of the items in the slots
             {
                 SlotList[iterate_names].GetComponent<Slot>().item_name = loadedData.slot_name_list[iterate_names];
                 iterate_names += 1;
             }
-            while (iterate_quants <= 18)
+            while (iterate_quants <= 18) // loads the quantities of the items in the slots.
             {
                 SlotList[iterate_quants].GetComponent<Slot>().quantity = loadedData.slot_quantity_list[iterate_quants];
                 iterate_quants += 1;
             }
-            if (current_constructnum > 0){
+            if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
                 iterate_constructs_tags = 0;
                 Debug.Log("destroying");
                 while (iterate_constructs_tags < current_constructnum){
@@ -127,7 +126,7 @@ public class PlayerDataManager : MonoBehaviour
                 }
                 iterate_constructs_tags = 0;
             }
-            if (loadedData.recorded_construct_tags.Count > 0) {    
+            if (loadedData.recorded_construct_tags.Count > 0) {    // places the saved constructs at their loaded positions and recalls what tags - or what - they are
                 while (iterate_constructs_coords < loadedData.recorded_construct_coords.Count)
                 {
                     Vector3 spawn_position = new Vector3(loadedData.recorded_construct_coords[iterate_constructs_coords],loadedData.recorded_construct_coords[iterate_constructs_coords + 1],loadedData.recorded_construct_coords[iterate_constructs_coords + 2]);
@@ -140,7 +139,7 @@ public class PlayerDataManager : MonoBehaviour
             }
         }
     }
-    public void DeathResetGame() {
+    public void DeathResetGame() { // this function is called on death, it wipes the inventory apart from the equips, and returns the position of the player and their stats to their starting values
         iterate_names = 4;
         iterate_quants = 4;
         player.GetComponent<Hud>().health = 100;
