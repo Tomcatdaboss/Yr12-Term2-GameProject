@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
-using UnityEngine.WSA;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -76,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
         animator.SetBool("IsMoving", isMoving);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision) // allows the player to jump again upon hitting the grounds
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
