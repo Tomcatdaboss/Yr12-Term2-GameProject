@@ -51,7 +51,7 @@ public class Hud : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {
+    { // initialising values of the stats
         health = maxHealth;
         hunger = maxHunger;
         thirst = maxThirst;
@@ -69,8 +69,8 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        is_winded_end_time = Time.time;
-        is_hurt_end_time = Time.time; 
+        is_winded_end_time = Time.time; // every frame this code updates the current time
+        is_hurt_end_time = Time.time; // every frame this code updates the current time
 
         xp_txt.text = XP_level.ToString();
 
@@ -78,7 +78,7 @@ public class Hud : MonoBehaviour
 
         LoseHunger(0.001f);// loses hunger and thirst every frame.
         LoseThirst(0.001f);
-        if (hunger <= 1){
+        if (hunger <= 1){ // loses health if starving or thirsty
             GainHealth(-0.01f);
         }else if (thirst <= 1){
             GainHealth(-0.01f);
@@ -114,8 +114,20 @@ public class Hud : MonoBehaviour
         {
             is_sprinting_bool = false;
         }
+        if (is_winded_time_elapsed >= 5 && is_sprinting_bool == false && stamina <= 100) // if the player hasn't sprinted for a period of time, regain stamina.
+        {
+            LoseStamina(-0.1f);
+        }
+        if (Input.GetKey(KeyCode.LeftShift) && is_winded_start_time == 0) // if sprinting, set is_winded_start time to Time.time
+        {
+            is_winded_start_time = Time.time;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftShift)) // if the player is no longer holding shift, stop sprinting.
+        {
+            is_sprinting_bool = false;
+        }
 
-        if (is_winded_start_time != 0)
+        if (is_winded_start_time != 0) // if the player has sprinted and stopped, compare the time between the current time and the time they stopped sprinting until 5 seconds have passed.
         {
             is_winded_time_elapsed = is_winded_end_time - is_winded_start_time;
             if (is_winded_time_elapsed >= 5)
@@ -124,35 +136,24 @@ public class Hud : MonoBehaviour
                 is_winded_start_time = 0;
             }
         }
-        if (is_winded_time_elapsed >= 5 && is_sprinting_bool == false && stamina <= 100)
-        {
-            LoseStamina(-0.1f);
-        }
-        if (Input.GetKey(KeyCode.LeftShift) && is_winded_start_time == 0)
-        {
-            is_winded_start_time = Time.time;
-        }
-        if (Input.GetKeyUp(KeyCode.LeftShift))
-        {
-            is_sprinting_bool = false;
-        }
-        if (xp >= maxXP)
+       
+        if (xp >= maxXP) // add XP levels when the xp approaches the required amount.
         {
             XP_level += 1;
             xp = 0;
             UpdateStatsUI();
         }
-        if (health <= 0)
+        if (health <= 0) //if the character loses all health, teleport the player to the death box and start the death UI.
         {
             health = 100;
             DeathScene.SetActive(true);
             transform.position = DeathSceneTransform.position;
         }
-        if (health != lasthealth)
+        if (health != lasthealth) // if the player was recently hurt, set is_hurt_start time to Time.time
         {
             is_hurt_start_time = Time.time;
         }
-        if (is_hurt_start_time != 0)
+        if (is_hurt_start_time != 0) // if the player has been damaged and stopped taking damage, compare the time between the current time and the time they stopped taking damage until 5 seconds have passed.
         { 
             is_hurt_time_elapsed = is_hurt_end_time - is_hurt_start_time;
             if (is_hurt_time_elapsed >= 5)
@@ -161,37 +162,37 @@ public class Hud : MonoBehaviour
                 is_hurt_start_time = 0;
             }
         }
-        if (is_hurt_time_elapsed >= 5 && health <= 100)
+        if (is_hurt_time_elapsed >= 5 && health <= 100) // gain health after 5 seconds have passed after taking damage.
         {
             GainHealth(0.01f);
         }
-        lasthealth = health;
+        lasthealth = health; // updates every frame to check if damage has been taken.
 
-        if(Input.GetKeyDown(KeyCode.S) && Win_button.activeSelf == true){
+        if(Input.GetKeyDown(KeyCode.S) && Win_button.activeSelf == true){ // if the boat has been crafted and the player is in the boat and pressed S, trigger the win animation.
             WinGame();
         }
 
-        if(Input.GetKeyDown(KeyCode.I)){
+        if(Input.GetKeyDown(KeyCode.I)){ // open inventory
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
         }
-        if(Input.GetKeyDown(KeyCode.Escape)){
+        if(Input.GetKeyDown(KeyCode.Escape)){ // close all menus
             inventory_sprite.SetActive(false);
             crafting_sprite.SetActive(false);
             help_sprite.SetActive(false); 
             start_sprite.SetActive(false);         
         }
-        if(Input.GetKeyDown(KeyCode.H)){
+        if(Input.GetKeyDown(KeyCode.H)){ // open the help menu
             help_sprite.SetActive(true);
         }
-        if (Input.GetKeyDown(KeyCode.R)){
+        if (Input.GetKeyDown(KeyCode.R)){ // reset all inventory contents and return player to spawn, typically in the process of death.
             transform.position = RespawnPointTransform.position;
             savemanager.GetComponent<PlayerDataManager>().DeathResetGame();
             savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
             WinScene.SetActive(false);
         }
-        if(Input.GetKeyDown(KeyCode.E)){
+        if(Input.GetKeyDown(KeyCode.E)){ // check if there is any cooked meat in the inventory, and if so, eat one and add 20 hunger to the hunger stat.
             GameObject prospective_meat_slot = gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false);
             if (prospective_meat_slot != null) {
                 if ((gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity - 1) >= 0){
@@ -203,9 +204,9 @@ public class Hud : MonoBehaviour
 
     }
 
-    public void UpdateStatsUI()
-    {
-        float fillF = frontHealthBar.fillAmount;
+    public void UpdateStatsUI() 
+    { // every frame, this updates the on-screen stat bars to match their integer fractions of the maximum.
+        float fillF = frontHealthBar.fillAmount; 
         float fillB = backHealthBar.fillAmount;
         float fillX = xpBarFiller.fillAmount;
         float fillS = staminaBarFiller.fillAmount;
@@ -217,27 +218,27 @@ public class Hud : MonoBehaviour
         float hungerFraction = hunger / maxHunger;
         float thirstFraction = thirst / maxThirst;
 
-        if (fillB > hFraction)
+        if (fillB > hFraction) // if the health has decreased do this
         {
-            frontHealthBar.fillAmount = hFraction;
-            frontHealthBar.color = Color.red;
+            frontHealthBar.color = Color.red; // adds a red tint to indicate that the health is decreasing
+            frontHealthBar.fillAmount = hFraction; // next 5 lines slowly decrease the health bar on screen
             lerpTimer += Time.deltaTime;
             float percentComplete = lerpTimer / chipSpeed;
             percentComplete = percentComplete * percentComplete;
             backHealthBar.fillAmount = Mathf.Lerp(fillB, hFraction, percentComplete);
-            frontHealthBar.color = Color.white;
+            frontHealthBar.color = Color.white; // return to normal colour
         }
-        if (fillF < hFraction)
+        if (fillF < hFraction) // if the health has increased do this
         {
-            frontHealthBar.color = Color.green;
-            backHealthBar.fillAmount = hFraction;
+            frontHealthBar.color = Color.green; // adds a green tint to indicate that the health is increasing
+            backHealthBar.fillAmount = hFraction; // next 5 lines slowly increase the health bar on screen
             lerpTimer += Time.deltaTime;
             float percentComplete = lerpTimer / chipSpeed;
             percentComplete = percentComplete * percentComplete;
             frontHealthBar.fillAmount = Mathf.Lerp(fillF, backHealthBar.fillAmount, percentComplete);
-            frontHealthBar.color = Color.white;
+            frontHealthBar.color = Color.white; // return to normal colour
         }
-        if (fillX < xpFraction)
+        if (fillX < xpFraction) // if the xp has increased do this
         {
             xpBarFiller.fillAmount = xpFraction;
             lerpTimer += Time.deltaTime;
@@ -245,7 +246,7 @@ public class Hud : MonoBehaviour
             percentComplete = percentComplete * percentComplete;
             xpBarFiller.fillAmount = Mathf.Lerp(fillX, xpBarFiller.fillAmount, percentComplete);
         }
-        if (fillX > xpFraction)
+        if (fillX > xpFraction) // if the xp has decreased do this
         {
             xpBarFiller.fillAmount = xpFraction;
             lerpTimer += Time.deltaTime;
@@ -253,7 +254,7 @@ public class Hud : MonoBehaviour
             percentComplete = percentComplete * percentComplete;
             xpBarFiller.fillAmount = Mathf.Lerp(fillX, xpFraction, percentComplete);
         }
-        if (fillS < staminaFraction)
+        if (fillS < staminaFraction) // if the stamina has increased do this
         {
             staminaBarFiller.fillAmount = staminaFraction;
             lerpTimer += Time.deltaTime;
@@ -261,7 +262,7 @@ public class Hud : MonoBehaviour
             percentComplete = percentComplete * percentComplete;
             staminaBarFiller.fillAmount = Mathf.Lerp(fillS, staminaBarFiller.fillAmount, percentComplete);
         }
-        if (fillS > staminaFraction)
+        if (fillS > staminaFraction) // if the stamina has decreased do this
         {
             staminaBarFiller.fillAmount = staminaFraction;
             lerpTimer += Time.deltaTime;
@@ -269,7 +270,7 @@ public class Hud : MonoBehaviour
             percentComplete = percentComplete * percentComplete;
             staminaBarFiller.fillAmount = Mathf.Lerp(fillS, staminaFraction, percentComplete);
         }
-        if (fillH < hungerFraction)
+        if (fillH < hungerFraction) // if the hunger has increased do this
         {
             hungerBarFiller.fillAmount = hungerFraction;
             lerpTimer += Time.deltaTime;
@@ -277,7 +278,7 @@ public class Hud : MonoBehaviour
             percentComplete = percentComplete * percentComplete;
             hungerBarFiller.fillAmount = Mathf.Lerp(fillH, hungerBarFiller.fillAmount, percentComplete);
         }
-        if (fillH > hungerFraction)
+        if (fillH > hungerFraction) // if the hunger has decreased do this
         {
             hungerBarFiller.fillAmount = hungerFraction;
             lerpTimer += Time.deltaTime;
@@ -285,7 +286,7 @@ public class Hud : MonoBehaviour
             percentComplete = percentComplete * percentComplete;
             hungerBarFiller.fillAmount = Mathf.Lerp(fillH, hungerFraction, percentComplete);
         }
-        if (fillT < thirstFraction)
+        if (fillT < thirstFraction) // if the thirst has increased do this
         {
             thirstBarFiller.fillAmount = thirstFraction;
             lerpTimer += Time.deltaTime;
@@ -293,7 +294,7 @@ public class Hud : MonoBehaviour
             percentComplete = percentComplete * percentComplete;
             thirstBarFiller.fillAmount = Mathf.Lerp(fillT, thirstBarFiller.fillAmount, percentComplete);
         }
-        if (fillT > thirstFraction)
+        if (fillT > thirstFraction) // if the thirst has decreased do this
         {
             thirstBarFiller.fillAmount = thirstFraction;
             lerpTimer += Time.deltaTime;
@@ -304,41 +305,41 @@ public class Hud : MonoBehaviour
 
     }
 
-    public void OnCollisionStay(Collision collider) {
+    public void OnCollisionStay(Collision collider) { // if the player is near enough to the boat, reveal the win button
         if(collider.gameObject.tag == "Boat"){
             Win_button.SetActive(true);
         }
     }
-    public void OnCollisionExit(Collision collider) {
+    public void OnCollisionExit(Collision collider) { // if the player is out of range of the boat, close the win button
         if(collider.gameObject.tag == "Boat"){
             Win_button.SetActive(false);
         }
     }
 
-    public void GainHealth(float statAmount)
+    public void GainHealth(float statAmount) // increases the health by the statAmount. Can be negative, to decrease health.
     {
         health += statAmount;
         lerpTimer = 0f;
     }
-    public void LoseHunger(float statAmount)
+    public void LoseHunger(float statAmount) // decreases the hunger by the statAmount. Can be negative, to increase hunger.
     {
         hunger -= statAmount;
     }
-    public void LoseThirst(float statAmount)
+    public void LoseThirst(float statAmount) // decreases the thirst by the statAmount. Can be negative, to increase thirst.
     {
         thirst -= statAmount;
     }
-    public void GainXp(float statAmount)
+    public void GainXp(float statAmount) // increases the xp by the statAmount. Can be negative, to decrease xp.
     {
         xp += statAmount;
         lerpTimer = 0f;
     }
-    public void LoseStamina(float staminaAmount)
+    public void LoseStamina(float staminaAmount) // decreases the stamina by the statAmount. Can be negative, to increase stamina.
     {
         stamina -= staminaAmount;
         is_winded_start_time = 0;
     }
-    public void WinGame(){
+    public void WinGame(){ // if the player presses the S key and wins, trigger the win UI.
         health = 100;
         WinScene.SetActive(true);
         transform.position = DeathSceneTransform.position;
