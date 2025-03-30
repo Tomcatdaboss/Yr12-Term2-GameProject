@@ -83,7 +83,13 @@ public class Inventory : MonoBehaviour
             {
               return InventSlots[i];
             } 
-            else if (InventSlots[i].GetComponent<Slot>().item_name == "empty" && adding == true)
+            else{
+              i += 1;
+            }
+          }
+          i = 0;
+          while(i < InventSlots.Count){
+            if (InventSlots[i].GetComponent<Slot>().item_name == "empty" && adding == true)
             {
               return InventSlots[i];
             }
