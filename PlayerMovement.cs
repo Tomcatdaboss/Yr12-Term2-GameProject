@@ -59,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
             isOnGround = false;
 
         }
-        if (transform.position.y < maxFallDistance)
+        if (transform.position.y < maxFallDistance) // if the player goes below the ocean floor tp back to spawn
         {
             transform.position = respawnPoint.position;
         }
@@ -80,6 +80,9 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isOnGround = true;
+        }
+        if(collision.gameObject.name == "UnderLandBarrier"){ // if the player falls through the terrain, tp them back to spawn.
+            transform.position = respawnPoint.position;
         }
     }
 }
