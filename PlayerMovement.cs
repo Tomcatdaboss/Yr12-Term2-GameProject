@@ -51,6 +51,15 @@ public class PlayerMovement : MonoBehaviour
         // player moving around
         transform.Translate(UnityEngine.Vector3.forward * Time.deltaTime * real_speed * forwardInput);
         transform.Translate(UnityEngine.Vector3.right * Time.deltaTime * speed * horizontalInput);
+        
+        // this prevents the character from clipping through the terrain
+        int naturalYDistance = 1;
+        float playerPositionCalculatedY = transform.position.y - Terrain.activeTerrain.SampleHeight(this.transform.position);
+        if (playerPositionCalculatedY < naturalYDistance)
+        {
+            float pushHeight = 1 - playerPositionCalculatedY;
+            transform.position += new UnityEngine.Vector3(0, pushHeight, 0);
+        }
 
         //player jump
         if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
