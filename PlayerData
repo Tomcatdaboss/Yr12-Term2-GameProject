@@ -17,6 +17,14 @@ public class PlayerData
     public float [] enemy_position_1;
     public float enemy_health_2; 
     public float [] enemy_position_2;
+    public float enemy_health_3;
+    public float [] enemy_position_3;
+    public float enemy_health_4;
+    public float [] enemy_position_4;
+    public float enemy_health_5;
+    public float [] enemy_position_5;
+    public float enemy_health_6;
+    public float [] enemy_position_6;
     public List<string> slot_name_list = new List<string>();
     public List<int> slot_quantity_list = new List<int>();
     public List<float> recorded_construct_coords = new List<float>();
