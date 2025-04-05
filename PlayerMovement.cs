@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -13,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
     public float real_speed;
     private float is_sprinting = 1;
     private float forwardInput;
+    private float y_at_jump;
+    private float y_after_jump;
     private Rigidbody playerRb;
     public float rotateSpeed = 100f;
     public float maxFallDistance = -30;
@@ -66,6 +70,7 @@ public class PlayerMovement : MonoBehaviour
         {
             playerRb.AddForce(UnityEngine.Vector3.up * jumpForce, ForceMode.Impulse);
             isOnGround = false;
+            y_at_jump = gameObject.transform.position.y;
 
         }
         if (transform.position.y < maxFallDistance) // if the player goes below the ocean floor tp back to spawn
@@ -89,9 +94,26 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isOnGround = true;
+            y_after_jump = gameObject.transform.position.y;
+            FallDmgCalc(y_at_jump - y_after_jump);
         }
         if(collision.gameObject.name == "UnderLandBarrier"){ // if the player falls through the terrain, tp them back to spawn.
             transform.position = respawnPoint.position;
         }
+    }
+    private void OnCollisionExit(Collision collision){
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isOnGround = false;
+            y_at_jump = gameObject.transform.position.y;
+
+        }
+    }
+    private void FallDmgCalc(float y_change){
+        float resultant_health_loss = 0;
+        if (y_change > 10){
+            resultant_health_loss = y_change / 2;
+        }
+        otherScript.GainHealth(-resultant_health_loss);
     }
 }
