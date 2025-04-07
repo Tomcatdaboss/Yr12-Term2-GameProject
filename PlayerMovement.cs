@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -15,14 +14,14 @@ public class PlayerMovement : MonoBehaviour
     public float real_speed;
     private float is_sprinting = 1;
     private float forwardInput;
-    private float y_at_jump;
-    private float y_after_jump;
+    public float y_at_jump;
+    public float y_after_jump;
     private Rigidbody playerRb;
     public float rotateSpeed = 100f;
     public float maxFallDistance = -30;
     public Transform respawnPoint;
     Animator animator;
-    private bool isMoving = false;
+    public bool isMoving = false;
     public GameObject Camera;
 
     // Start is called before the first frame update
@@ -31,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
         otherScript = gameObject.GetComponent<Hud>();
         playerRb = GetComponent<Rigidbody>();
         animator = Camera.GetComponent<Animator>();
+        y_at_jump = transform.position.y;
     }
 
     // Update is called once per frame
@@ -73,10 +73,6 @@ public class PlayerMovement : MonoBehaviour
             y_at_jump = gameObject.transform.position.y;
 
         }
-        if (transform.position.y < maxFallDistance) // if the player goes below the ocean floor tp back to spawn
-        {
-            transform.position = respawnPoint.position;
-        }
         //player sprint
         if (otherScript.is_sprinting_bool == true)
         {
@@ -100,6 +96,10 @@ public class PlayerMovement : MonoBehaviour
         if(collision.gameObject.name == "UnderLandBarrier"){ // if the player falls through the terrain, tp them back to spawn.
             transform.position = respawnPoint.position;
         }
+        if (transform.position.y < maxFallDistance) // if the player goes below the ocean floor tp back to spawn
+        {
+            transform.position = respawnPoint.position;
+        }
     }
     private void OnCollisionExit(Collision collision){
         if (collision.gameObject.CompareTag("Ground"))
@@ -113,6 +113,7 @@ public class PlayerMovement : MonoBehaviour
         float resultant_health_loss = 0;
         if (y_change > 10){
             resultant_health_loss = y_change / 2;
+            Debug.Log("fall damage triggered");
         }
         otherScript.GainHealth(-resultant_health_loss);
     }
