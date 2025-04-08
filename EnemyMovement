@@ -1,14 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.IO.Compression;
-using System.Net.Sockets;
-using System.Numerics;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -32,10 +22,14 @@ public class EnemyMovement : MonoBehaviour
     public int minimum_distance;
     private bool is_moving = true;
     private bool is_dead = false;
+    private float spawn_x;
+    private float spawn_z;
 
     // Start is called before the first frame update
     void Start()
     {
+        spawn_x = gameObject.GetComponent<Transform>().transform.position.x;
+        spawn_z = gameObject.GetComponent<Transform>().transform.position.z;
         health = max_health;
         Mathf.Clamp(health, 0, max_health);
     }
@@ -82,7 +76,7 @@ public class EnemyMovement : MonoBehaviour
             if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){ // checks if dead anim has started, to trigger timer
                 deathtimer -= 0.01;
                 if(deathtimer <= 0){ // after timer finishes, the enemy respawns and resets all stats
-                    UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(UnityEngine.Random.Range(-10,10), 200 ,UnityEngine.Random.Range(-10,10));
+                    UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(spawn_x, 200 ,spawn_z);
                     player.GetComponent<Hud>().xp += 50;
                     transform.position = enemyspawn;
                     enemybody.layer = 11;
