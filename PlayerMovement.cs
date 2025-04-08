@@ -104,9 +104,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnCollisionExit(Collision collision){
         if (collision.gameObject.CompareTag("Ground"))
         {
-            isOnGround = false;
             y_at_jump = gameObject.transform.position.y;
-
         }
     }
     private void FallDmgCalc(float y_change){
