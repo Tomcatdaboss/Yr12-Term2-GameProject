@@ -178,12 +178,12 @@ public class Inventory : MonoBehaviour
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Sickle"){
         if(other.gameObject.layer == 12 && equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
           InsertSlot("Fiber", 1, true);
-          gameObject.GetComponent<Hud>().xp += 2;
+          gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
         if(other.gameObject.layer == 10 && equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
           InsertSlot("Hide", 1, true);
-          gameObject.GetComponent<Hud>().xp += 2;
+          gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
