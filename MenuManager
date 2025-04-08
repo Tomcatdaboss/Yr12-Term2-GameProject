@@ -1,0 +1,43 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class MenuManager : MonoBehaviour
+{
+    public GameObject XP_slider_obj;
+    public GameObject HP_slider_obj;
+    public GameObject unassigned_slider_obj;
+    public GameObject unassigned_slider1_obj;
+    public GameObject player;
+    public GameObject savemanager;
+    // Start is called before the first frame update
+    void Start()
+    {
+    }
+    public void OnSettingsChange(){
+        player.GetComponent<Hud>().maxXP = XP_slider_obj.GetComponent<Slider>().value;
+        player.GetComponent<Hud>().maxHealth = HP_slider_obj.GetComponent<Slider>().value;
+        //player.GetComponent<Hud>().maxHealth = XP_slider_obj.GetComponent<Slider>().value * MaximumXP;
+        //player.GetComponent<Hud>().maxHealth = XP_slider_obj.GetComponent<Slider>().value * MaximumXP;
+    }
+    public void StartFunc(){ // reset all inventory contents and return player to spawn, typically in the process of death.
+        savemanager.GetComponent<PlayerDataManager>().LoadGame();
+        player.GetComponent<Hud>().menu_sprite.SetActive(false);
+        player.GetComponent<Hud>().menu_cam.GetComponent<Camera>().enabled = false;
+        gameObject.GetComponent<PlayerMovement>().Camera.GetComponent<Camera>().enabled = true;
+        if(gameObject.transform.position.x <= player.GetComponent<Hud>().RespawnPointTransform.position.x + 0.1 && gameObject.transform.position.x >= player.GetComponent<Hud>().RespawnPointTransform.position.x - 0.1){
+            player.GetComponent<Hud>().start_sprite.SetActive(true);
+        }
+    }
+    public void StartMenuFunc(){ // turns menu on
+        player.GetComponent<Hud>().start_sprite.SetActive(false);
+        player.GetComponent<Hud>().menu_sprite.SetActive(true);
+        player.GetComponent<Hud>().menu_cam.GetComponent<Camera>().enabled = true;
+        gameObject.GetComponent<PlayerMovement>().Camera.GetComponent<Camera>().enabled = false;
+    }
+    public void QuitGame() {
+        Application.Quit();
+    }
+}
