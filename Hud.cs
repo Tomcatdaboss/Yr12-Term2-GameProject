@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -46,10 +47,11 @@ public class Hud : MonoBehaviour
     public float is_hurt_start_time = 0;
     public float is_hurt_end_time = 0;
     public float is_hurt_time_elapsed = 0;
+    public GameObject menu_cam;
 
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     { // initialising values of the stats
         health = maxHealth;
         hunger = maxHunger;
@@ -186,7 +188,7 @@ public class Hud : MonoBehaviour
                 start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,70);
                 tutorialstep += 1;
             } else if (tutorialcomplete){
-                start_sprite.SetActive(false);
+                start_sprite.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, 1f);
             }       
         }
         if(gameObject.GetComponent<PlayerMovement>().isMoving && tutorialcomplete == false && tutorialstep == 2){
@@ -230,7 +232,7 @@ public class Hud : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.R)){ // triggers the respawn process and wipes the inventory due to death
             savemanager.GetComponent<PlayerDataManager>().DeathResetGame();
-            RespawnFunc();
+            savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
             WinScene.SetActive(false);
         }
@@ -384,12 +386,7 @@ public class Hud : MonoBehaviour
     public void WinGame(){ // if the player presses the S key and wins, trigger the win UI.
         health = 100;
         WinScene.SetActive(true);
+        savemanager.GetComponent<PlayerDataManager>().SaveGame();
         transform.position = DeathSceneTransform.position;
-        savemanager.GetComponent<PlayerDataManager>().SaveGame();
-    }
-    public void RespawnFunc(){ // reset all inventory contents and return player to spawn, typically in the process of death.
-        transform.position = RespawnPointTransform.position;
-        savemanager.GetComponent<PlayerDataManager>().SaveGame();
-        menu_sprite.SetActive(false);
     }
 }
