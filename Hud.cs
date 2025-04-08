@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +8,7 @@ public class Hud : MonoBehaviour
     public GameObject WinScene;
     public GameObject Win_button;
     public GameObject savemanager;
+    public GameObject menu_sprite;
     Animator animator;
     private float lerpTimer;
     private bool tutorialcomplete = false;
@@ -66,6 +63,7 @@ public class Hud : MonoBehaviour
         stamina = Mathf.Clamp(stamina, 0, maxStamina);
         hunger = Mathf.Clamp(hunger, 0, maxHunger);
         thirst = Mathf.Clamp(thirst, 0, maxThirst);
+        start_sprite.SetActive(false);
     }
 
     // Update is called once per frame
@@ -230,10 +228,9 @@ public class Hud : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.H)){ // open the help menu
             help_sprite.SetActive(true);
         }
-        if (Input.GetKeyDown(KeyCode.R)){ // reset all inventory contents and return player to spawn, typically in the process of death.
-            transform.position = RespawnPointTransform.position;
+        if (Input.GetKeyDown(KeyCode.R)){ // triggers the respawn process and wipes the inventory due to death
             savemanager.GetComponent<PlayerDataManager>().DeathResetGame();
-            savemanager.GetComponent<PlayerDataManager>().SaveGame();
+            RespawnFunc();
             DeathScene.SetActive(false);
             WinScene.SetActive(false);
         }
@@ -389,5 +386,10 @@ public class Hud : MonoBehaviour
         WinScene.SetActive(true);
         transform.position = DeathSceneTransform.position;
         savemanager.GetComponent<PlayerDataManager>().SaveGame();
+    }
+    public void RespawnFunc(){ // reset all inventory contents and return player to spawn, typically in the process of death.
+        transform.position = RespawnPointTransform.position;
+        savemanager.GetComponent<PlayerDataManager>().SaveGame();
+        menu_sprite.SetActive(false);
     }
 }
