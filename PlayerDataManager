@@ -21,14 +21,7 @@ public class PlayerDataManager : MonoBehaviour
     public List <GameObject> SlotList;
     public List <GameObject> ConstructList;
     public GameObject campfire;
-    public void Start(){ // this reloads the last save when the game is started. 
-        //LoadGame();
-    }
-    void OnApplicationQuit() // saves the game when the game is closed.
-    {
-        //SaveGame();
-    }
-    public void Update()
+    void Update()
     {
         if(Input.GetKeyDown(KeyCode.Q)){ // buttons to save and load the savefile.
             SaveGame();
@@ -176,7 +169,8 @@ public class PlayerDataManager : MonoBehaviour
     public void DeathResetGame() { // this function is called on death, it wipes the inventory apart from the equips, and returns the position of the player and their stats to their starting values
         iterate_names = 4;
         iterate_quants = 4;
-        player.GetComponent<Hud>().health = 100;
+        player.transform.position = player.GetComponent<Hud>().RespawnPointTransform.position;
+        player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
         player.GetComponent<Hud>().stamina = 100;
         player.GetComponent<Hud>().hunger = 100;
         player.GetComponent<Hud>().thirst = 100;
