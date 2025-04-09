@@ -12,7 +12,7 @@ public class Hud : MonoBehaviour
     public GameObject menu_sprite;
     Animator animator;
     private float lerpTimer;
-    public int tutorialstep = 1;
+    public int tutorialstep;
     public float maxHealth = 100f;
     public float maxStamina = 100f;
     public float maxHunger = 100f;
@@ -37,6 +37,8 @@ public class Hud : MonoBehaviour
     public GameObject crafting_sprite;
     public GameObject help_sprite;
     public GameObject start_sprite;
+    public GameObject start_sprite_txt;
+    public string start_sprite_normal_txt;
     public float XP_level;
     private Text xp_txt;
     private float lasthealth = 100;
@@ -57,6 +59,7 @@ public class Hud : MonoBehaviour
         thirst = maxThirst;
         stamina = maxStamina;
         xp_txt = XP_text.GetComponent<Text>();
+        start_sprite_normal_txt = start_sprite_txt.GetComponent<Text>().text;
         XP_level = 0;
         UpdateStatsUI();
         inventory_sprite.SetActive(false);
@@ -84,7 +87,6 @@ public class Hud : MonoBehaviour
         }else if (thirst <= 1){
             GainHealth(-0.01f);
         }
-
         if (Input.GetKeyDown(KeyCode.M)) // these if statements are testing functions to artificially trigger stat change
         {
             GainHealth(Random.Range(5, 10));
@@ -97,7 +99,6 @@ public class Hud : MonoBehaviour
         {
             GainXp(Random.Range(5, 10));
         }
-
         if (Input.GetKey(KeyCode.LeftShift) && stamina > 0.5) // sprinting code. 
         {
             is_sprinting_bool = true; // triggers faster movement
@@ -177,54 +178,83 @@ public class Hud : MonoBehaviour
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
         }
-        if(Input.GetKeyDown(KeyCode.Escape)){ // close all menus
+        if(Input.GetKeyDown(KeyCode.Escape)){ // close all menus, and starts the tutorial chain
             inventory_sprite.SetActive(false);
             crafting_sprite.SetActive(false);
             help_sprite.SetActive(false);
-            if(tutorialstep == 1){
-                start_sprite.GetComponentInChildren<Text>().text = "Press W to move forward, A and D to move left and right, and S to move backwards."; 
-                start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 150);
-                start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,70);
-                tutorialstep += 1;
-            } else if (tutorialstep == 0){
-                start_sprite.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, 1f);
-            }       
-        }
-        if(gameObject.GetComponent<PlayerMovement>().isMoving && tutorialstep == 2){
-            start_sprite.GetComponentInChildren<Text>().text = "Press Space to jump. But don't jump from heights, because you'll get hurt!"; 
-            tutorialstep += 1;
-        }
-        if(Input.GetKeyDown(KeyCode.Space) && tutorialstep == 3){
-            start_sprite.GetComponentInChildren<Text>().text = "Press I to look at your Inventory. It's empty right now, but you can use your tools to get materials."; 
-            tutorialstep += 1;
-        }
-        if(Input.GetKeyDown(KeyCode.I) && tutorialstep == 4){
-            start_sprite.GetComponentInChildren<Text>().text = "Press H to look at a list of controls that might help you on your journey."; 
-            tutorialstep += 1;
-        }
-        if(Input.GetKeyDown(KeyCode.H) && tutorialstep == 5){
-            start_sprite.GetComponentInChildren<Text>().text = "Now, equip your Axe by pressing 1, and get 10 wood from a nearby tree."; 
-            tutorialstep += 1;
-        }
-        try{
-            if(gameObject.GetComponent<Inventory>().FindSlot("Wood", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10 && tutorialstep == 6){
-                start_sprite.GetComponentInChildren<Text>().text = "Great! Your XP level will grow as you harvest materials, allowing you to learn how to make new things. Try to get your level to 1."; 
+            if(tutorialstep != 0 && tutorialstep != 8){
+            } else {
                 tutorialstep += 1;
             }
-        } catch {
-
         }
-        if(XP_level >= 1 && tutorialstep == 7){
-            start_sprite.GetComponentInChildren<Text>().text = "Great! Now, you can craft new gear! Look around for a rock to mine from, and get 10 stone!"; 
-            tutorialstep += 1;
+        if(tutorialstep == 1){ // the following if statements control what the tutorial says and whether it is enabled based on what step it is supposed to be on
+                start_sprite_txt.GetComponent<Text>().text = "Press W to move forward, A and D to move left and right, and S to move backwards."; 
+                if (gameObject.GetComponent<PlayerMovement>().isMoving){
+                    tutorialstep += 1;
+                }
         }
-        try{
-            if(gameObject.GetComponent<Inventory>().FindSlot("Stone", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10 && tutorialstep == 8){
-                start_sprite.GetComponentInChildren<Text>().text = "Your hunger and thirst bars are on the bottom left. To quench your thirst, stand in water. To eat, kill an animal with a Spear and harvest its meat with it. Remember: if in doubt, always go upward. Good luck! Press escape to close this tutorial."; 
-                start_sprite.GetComponentInChildren<Text>().fontSize = 10;
-                tutorialstep = 0;
+        if(tutorialstep == 2){
+            start_sprite_txt.GetComponent<Text>().text = "Press Space to jump. But don't jump from heights, because you'll get hurt!"; 
+            if (Input.GetKeyDown(KeyCode.Space)){
+                tutorialstep += 1;
             }
-        } catch{}
+        }
+        if(tutorialstep == 3){
+            start_sprite_txt.GetComponent<Text>().text = "Press I to look at your Inventory. It's empty right now, but you can use your tools to get materials."; 
+            if (Input.GetKeyDown(KeyCode.I)){
+                tutorialstep += 1;
+            }
+        }
+        if(tutorialstep == 4){
+            start_sprite_txt.GetComponent<Text>().text = "Press H to look at a list of controls that might help you on your journey."; 
+            if (Input.GetKeyDown(KeyCode.H)){
+                tutorialstep += 1;
+            }
+        }
+        if(tutorialstep == 5){
+            start_sprite_txt.GetComponent<Text>().text = "Now, equip your Axe by pressing 1, and get 10 wood from a nearby tree."; 
+            try{
+                if (gameObject.GetComponent<Inventory>().FindSlot("Wood", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10){
+                    tutorialstep += 1;
+                }
+            } catch {}
+        }
+        if(tutorialstep == 6){
+            start_sprite_txt.GetComponent<Text>().text = "Great! Your XP level will grow as you harvest materials, allowing you to learn how to make new things. Try to get your level to 1."; 
+            if (XP_level >= 1){
+                tutorialstep += 1;
+            }
+        }
+        if(tutorialstep == 7){
+            start_sprite_txt.GetComponent<Text>().text = "Great! Now, you can craft new gear! Look around for a rock to mine from, and get 10 stone!"; 
+            try{
+                if (gameObject.GetComponent<Inventory>().FindSlot("Stone", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10){
+                    tutorialstep += 1;
+                }
+            } catch{}
+        }
+        if(tutorialstep == 8){
+            start_sprite_txt.GetComponent<Text>().text = "Your hunger and thirst bars are on the bottom left. To quench your thirst, stand in water. To eat, kill an animal with a Spear and harvest its meat with it. Remember: if in doubt, always go upward. Good luck! Press escape to close this tutorial."; 
+            start_sprite_txt.GetComponent<Text>().fontSize = 10;
+            if (Input.GetKeyDown(KeyCode.Escape)){
+                tutorialstep = 9;
+            }
+        }
+        if (tutorialstep == 9){
+            start_sprite.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+            start_sprite_txt.GetComponent<Text>().color = new Color(0f, 0f, 0f, 0f);
+        } else {
+            start_sprite.GetComponent<Image>().color = Color.white;
+            start_sprite_txt.GetComponent<Text>().color = Color.black;
+        } 
+        if(tutorialstep == 0) {
+            start_sprite_txt.GetComponent<Text>().text = start_sprite_normal_txt;
+            start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 4);
+            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,275);
+        } else {
+            start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 150);
+            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,70);
+        }
         if(Input.GetKeyDown(KeyCode.H)){ // open the help menu
             help_sprite.SetActive(true);
         }
