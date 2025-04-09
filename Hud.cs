@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,8 +12,7 @@ public class Hud : MonoBehaviour
     public GameObject menu_sprite;
     Animator animator;
     private float lerpTimer;
-    private bool tutorialcomplete = false;
-    private int tutorialstep = 1;
+    public int tutorialstep = 1;
     public float maxHealth = 100f;
     public float maxStamina = 100f;
     public float maxHunger = 100f;
@@ -46,10 +46,11 @@ public class Hud : MonoBehaviour
     public float is_hurt_start_time = 0;
     public float is_hurt_end_time = 0;
     public float is_hurt_time_elapsed = 0;
+    public GameObject menu_cam;
 
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     { // initialising values of the stats
         health = maxHealth;
         hunger = maxHunger;
@@ -180,49 +181,48 @@ public class Hud : MonoBehaviour
             inventory_sprite.SetActive(false);
             crafting_sprite.SetActive(false);
             help_sprite.SetActive(false);
-            if(tutorialcomplete == false && tutorialstep == 1){
+            if(tutorialstep == 1){
                 start_sprite.GetComponentInChildren<Text>().text = "Press W to move forward, A and D to move left and right, and S to move backwards."; 
                 start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 150);
                 start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,70);
                 tutorialstep += 1;
-            } else if (tutorialcomplete){
-                start_sprite.SetActive(false);
+            } else if (tutorialstep == 0){
+                start_sprite.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, 1f);
             }       
         }
-        if(gameObject.GetComponent<PlayerMovement>().isMoving && tutorialcomplete == false && tutorialstep == 2){
+        if(gameObject.GetComponent<PlayerMovement>().isMoving && tutorialstep == 2){
             start_sprite.GetComponentInChildren<Text>().text = "Press Space to jump. But don't jump from heights, because you'll get hurt!"; 
             tutorialstep += 1;
         }
-        if(Input.GetKeyDown(KeyCode.Space) && tutorialcomplete == false && tutorialstep == 3){
+        if(Input.GetKeyDown(KeyCode.Space) && tutorialstep == 3){
             start_sprite.GetComponentInChildren<Text>().text = "Press I to look at your Inventory. It's empty right now, but you can use your tools to get materials."; 
             tutorialstep += 1;
         }
-        if(Input.GetKeyDown(KeyCode.I) && tutorialcomplete == false && tutorialstep == 4){
+        if(Input.GetKeyDown(KeyCode.I) && tutorialstep == 4){
             start_sprite.GetComponentInChildren<Text>().text = "Press H to look at a list of controls that might help you on your journey."; 
             tutorialstep += 1;
         }
-        if(Input.GetKeyDown(KeyCode.H) && tutorialcomplete == false && tutorialstep == 5){
+        if(Input.GetKeyDown(KeyCode.H) && tutorialstep == 5){
             start_sprite.GetComponentInChildren<Text>().text = "Now, equip your Axe by pressing 1, and get 10 wood from a nearby tree."; 
             tutorialstep += 1;
         }
         try{
-            if(gameObject.GetComponent<Inventory>().FindSlot("Wood", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10 && tutorialcomplete == false && tutorialstep == 6){
+            if(gameObject.GetComponent<Inventory>().FindSlot("Wood", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10 && tutorialstep == 6){
                 start_sprite.GetComponentInChildren<Text>().text = "Great! Your XP level will grow as you harvest materials, allowing you to learn how to make new things. Try to get your level to 1."; 
                 tutorialstep += 1;
             }
         } catch {
 
         }
-        if(XP_level >= 1 && tutorialcomplete == false && tutorialstep == 7){
+        if(XP_level >= 1 && tutorialstep == 7){
             start_sprite.GetComponentInChildren<Text>().text = "Great! Now, you can craft new gear! Look around for a rock to mine from, and get 10 stone!"; 
             tutorialstep += 1;
         }
         try{
-            if(gameObject.GetComponent<Inventory>().FindSlot("Stone", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10 && tutorialcomplete == false && tutorialstep == 8){
+            if(gameObject.GetComponent<Inventory>().FindSlot("Stone", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10 && tutorialstep == 8){
                 start_sprite.GetComponentInChildren<Text>().text = "Your hunger and thirst bars are on the bottom left. To quench your thirst, stand in water. To eat, kill an animal with a Spear and harvest its meat with it. Remember: if in doubt, always go upward. Good luck! Press escape to close this tutorial."; 
                 start_sprite.GetComponentInChildren<Text>().fontSize = 10;
-                tutorialstep += 1;
-                tutorialcomplete = true;
+                tutorialstep = 0;
             }
         } catch{}
         if(Input.GetKeyDown(KeyCode.H)){ // open the help menu
@@ -230,7 +230,7 @@ public class Hud : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.R)){ // triggers the respawn process and wipes the inventory due to death
             savemanager.GetComponent<PlayerDataManager>().DeathResetGame();
-            RespawnFunc();
+            savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
             WinScene.SetActive(false);
         }
@@ -384,12 +384,7 @@ public class Hud : MonoBehaviour
     public void WinGame(){ // if the player presses the S key and wins, trigger the win UI.
         health = 100;
         WinScene.SetActive(true);
+        savemanager.GetComponent<PlayerDataManager>().SaveGame();
         transform.position = DeathSceneTransform.position;
-        savemanager.GetComponent<PlayerDataManager>().SaveGame();
-    }
-    public void RespawnFunc(){ // reset all inventory contents and return player to spawn, typically in the process of death.
-        transform.position = RespawnPointTransform.position;
-        savemanager.GetComponent<PlayerDataManager>().SaveGame();
-        menu_sprite.SetActive(false);
     }
 }
