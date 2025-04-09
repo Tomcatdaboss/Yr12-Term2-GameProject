@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerData
 {
     public float [] player_position;
+    public int tut_step
     public float health;
     public float stamina;
     public float thirst;
