@@ -31,9 +31,6 @@ public class MenuManager : MonoBehaviour
         shownui.SetActive(true);
         menu_cam.enabled = false;
         main_cam.enabled = true;
-        if(player.transform.position.x <= player.GetComponent<Hud>().RespawnPointTransform.position.x + 0.1 && player.transform.position.x >= player.GetComponent<Hud>().RespawnPointTransform.position.x - 0.1){
-            player.GetComponent<Hud>().start_sprite.SetActive(true);
-        }
     }
     public void StartMenuFunc(){ // turns menu on
         player.GetComponent<Hud>().start_sprite.SetActive(false);
