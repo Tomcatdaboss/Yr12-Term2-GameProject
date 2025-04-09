@@ -43,6 +43,7 @@ public class PlayerDataManager : MonoBehaviour
         playerData.thirst = player.GetComponent<Hud>().thirst;
         playerData.level = player.GetComponent<Hud>().XP_level;
         playerData.xp = player.GetComponent<Hud>().xp;
+        playerData.tut_step = player.GetComponent<Hud>().tutorialstep;
         playerData.current_equip = player.GetComponentInChildren<EquipController>().current_obj_selected; // saving equipped object
         playerData.enemy_health_1 = enemy1.GetComponent<EnemyMovement>().health; // saving enemy health and position
         playerData.enemy_health_2 = enemy2.GetComponent<EnemyMovement>().health;
@@ -169,6 +170,7 @@ public class PlayerDataManager : MonoBehaviour
     public void DeathResetGame() { // this function is called on death, it wipes the inventory apart from the equips, and returns the position of the player and their stats to their starting values
         iterate_names = 4;
         iterate_quants = 4;
+        player.GetComponentInChildren<EquipController>().current_obj_selected = "empty";
         player.transform.position = player.GetComponent<Hud>().RespawnPointTransform.position;
         player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
         player.GetComponent<Hud>().stamina = 100;
@@ -184,5 +186,38 @@ public class PlayerDataManager : MonoBehaviour
             SlotList[iterate_quants].GetComponent<Slot>().quantity = 0;
             iterate_quants += 1;
         }
+    }
+    public void ClearSave() { // this function is called when the clearsave button is clicked, it wipes everything and returns everything to the starting values
+        iterate_names = 2;
+        iterate_quants = 2;
+        int current_constructnum = ConstructList.Count;
+        player.transform.position = player.GetComponent<Hud>().RespawnPointTransform.position;
+        player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
+        player.GetComponent<Hud>().stamina = 100;
+        player.GetComponent<Hud>().hunger = 100;
+        player.GetComponent<Hud>().thirst = 100;
+        player.GetComponent<Hud>().tutorialstep = 1;
+        if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
+            iterate_constructs_tags = 0;
+            Debug.Log("destroying");
+            while (iterate_constructs_tags < current_constructnum){
+                GameObject current_object = ConstructList[iterate_constructs_tags];
+                ConstructList.Remove(current_object);
+                Destroy(current_object);
+                iterate_constructs_tags += 1;
+            }
+            iterate_constructs_tags = 0;
+        }
+        while (iterate_names <= 18)
+        {
+            SlotList[iterate_names].GetComponent<Slot>().item_name = "empty";
+            iterate_names += 1;
+        }
+        while (iterate_quants <= 18)
+        {
+            SlotList[iterate_quants].GetComponent<Slot>().quantity = 0;
+            iterate_quants += 1;
+        }
+        SaveGame();
     }
 }
