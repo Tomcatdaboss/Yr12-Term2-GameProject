@@ -1,10 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 public class PlayerDataManager : MonoBehaviour
 {
     public GameObject player;
@@ -102,6 +97,7 @@ public class PlayerDataManager : MonoBehaviour
             player.GetComponent<Hud>().thirst = loadedData.thirst;
             player.GetComponent<Hud>().XP_level = loadedData.level;
             player.GetComponent<Hud>().xp = loadedData.xp;
+            player.GetComponent<Hud>().tutorialstep = loadedData.tut_step;
             player.GetComponentInChildren<EquipController>().current_obj_selected = loadedData.current_equip; // replaces current object with the loaded object
 
             enemy1.GetComponent<EnemyMovement>().health = loadedData.enemy_health_1; // loads enemy heath and position
@@ -196,7 +192,7 @@ public class PlayerDataManager : MonoBehaviour
         player.GetComponent<Hud>().stamina = 100;
         player.GetComponent<Hud>().hunger = 100;
         player.GetComponent<Hud>().thirst = 100;
-        player.GetComponent<Hud>().tutorialstep = 1;
+        player.GetComponent<Hud>().tutorialstep = 0;
         if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
             iterate_constructs_tags = 0;
             Debug.Log("destroying");
@@ -219,5 +215,11 @@ public class PlayerDataManager : MonoBehaviour
             iterate_quants += 1;
         }
         SaveGame();
+    }
+    void OnApplicationQuit(){
+        if(player.transform.position.x <= player.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && player.transform.position.x >= player.GetComponent<Hud>().DeathSceneTransform.position.x - 10 && player.transform.position.x <= player.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && player.transform.position.z >= player.GetComponent<Hud>().DeathSceneTransform.position.z - 10){
+        } else {
+            SaveGame();
+        }
     }
 }
