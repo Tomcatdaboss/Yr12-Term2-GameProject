@@ -6,10 +6,10 @@ using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
-    public GameObject XP_slider_obj;
-    public GameObject HP_slider_obj;
-    public GameObject unassigned_slider_obj;
-    public GameObject unassigned_slider1_obj;
+    public Slider XP_slider_obj;
+    public Slider HP_slider_obj;
+    public Slider HT_slider_obj;
+    public Slider unassigned_slider1_obj;
     public GameObject player;
     public GameObject savemanager;
     public GameObject shownui;
@@ -20,17 +20,20 @@ public class MenuManager : MonoBehaviour
     {
     }
     public void OnSettingsChange(){
-        player.GetComponent<Hud>().maxXP = XP_slider_obj.GetComponent<Slider>().value;
-        player.GetComponent<Hud>().maxHealth = HP_slider_obj.GetComponent<Slider>().value;
-        //player.GetComponent<Hud>().maxHealth = XP_slider_obj.GetComponent<Slider>().value * MaximumXP;
-        //player.GetComponent<Hud>().maxHealth = XP_slider_obj.GetComponent<Slider>().value * MaximumXP;
+        player.GetComponent<Hud>().maxXP = XP_slider_obj.value;
+        player.GetComponent<Hud>().maxHealth = HP_slider_obj.value;
+        player.GetComponent<Hud>().maxHunger = HT_slider_obj.value;
+        player.GetComponent<Hud>().maxThirst = HT_slider_obj.value;
+        //player.GetComponent<Hud>().maxHealth = XP_slider_obj.value;
     }
-    public void StartFunc(){ // reset all inventory contents and return player to spawn, typically in the process of death.
+    public void StartFunc(){ // moves the player to the spawn location
         savemanager.GetComponent<PlayerDataManager>().LoadGame();
         player.GetComponent<Hud>().menu_sprite.SetActive(false);
         shownui.SetActive(true);
         menu_cam.enabled = false;
         main_cam.enabled = true;
+        player.GetComponent<Hud>().start_sprite.SetActive(true);
+        
     }
     public void StartMenuFunc(){ // turns menu on
         player.GetComponent<Hud>().start_sprite.SetActive(false);
