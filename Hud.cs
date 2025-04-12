@@ -10,14 +10,14 @@ public class Hud : MonoBehaviour
     public GameObject Win_button;
     public GameObject savemanager;
     public GameObject menu_sprite;
+    public GameObject water_overlay_sprite;
     Animator animator;
     private float lerpTimer;
     public int tutorialstep;
-    public float maxHealth = 100f;
-    public float maxStamina = 100f;
-    public float maxHunger = 100f;
-    public float maxThirst = 100f;
-    public float maxXP = 100f;
+    public int maxHealth = 100;
+    public int maxStamina = 100;
+    public int maxHunger = 100;
+    public int maxXP = 100;
     public float stamina;
     public float health;
     public float hunger;
@@ -49,14 +49,14 @@ public class Hud : MonoBehaviour
     public float is_hurt_end_time = 0;
     public float is_hurt_time_elapsed = 0;
     public GameObject menu_cam;
-
+    public GameObject menu_button_UI;
 
     // Start is called before the first frame update
     public void Start()
     { // initialising values of the stats
         health = maxHealth;
         hunger = maxHunger;
-        thirst = maxThirst;
+        thirst = maxHunger;
         stamina = maxStamina;
         xp_txt = XP_text.GetComponent<Text>();
         start_sprite_normal_txt = start_sprite_txt.GetComponent<Text>().text;
@@ -66,22 +66,46 @@ public class Hud : MonoBehaviour
         health = Mathf.Clamp(health, 0, maxHealth);
         stamina = Mathf.Clamp(stamina, 0, maxStamina);
         hunger = Mathf.Clamp(hunger, 0, maxHunger);
-        thirst = Mathf.Clamp(thirst, 0, maxThirst);
+        thirst = Mathf.Clamp(thirst, 0, maxHunger);
         start_sprite.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(xp >= maxXP){ 
+        // these if statements resolve any situations where the changable values in the settings grow to beyond their maximum values as a result of a change in the settings during runtime.
+            XP_level +=1;
+            xp -= maxXP;
+        }
+        if(health >= maxHealth){
+            health = maxHealth;
+        }
+        if(hunger >= maxHunger){
+            hunger = maxHunger;
+        }
+        if(thirst >= maxHunger){
+            thirst = maxHunger;
+        }
+
+        if(gameObject.transform.position.y <= 9.4){ // turns on the blue filter when the player gets to water level
+            water_overlay_sprite.SetActive(true);
+        }
+        else {
+            water_overlay_sprite.SetActive(false);
+        }
+
         is_winded_end_time = Time.time; // every frame this code updates the current time
         is_hurt_end_time = Time.time; // every frame this code updates the current time
 
         xp_txt.text = XP_level.ToString();
 
         UpdateStatsUI(); // constantly triggers the check to change the UI to reflect current stat levels
-
-        LoseHunger(0.001f);// loses hunger and thirst every frame.
-        LoseThirst(0.001f);
+        if(gameObject.transform.position.x <= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && gameObject.transform.position.x >= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x - 10 && gameObject.transform.position.x <= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && gameObject.transform.position.z >= gameObject.GetComponent<Hud>().DeathSceneTransform.position.z - 10){
+        } else {
+            LoseHunger(0.001f);// loses hunger and thirst every frame when the player is not in the menu.
+            LoseThirst(0.001f);
+        }
         if (hunger <= 1){ // loses health if starving or thirsty
             GainHealth(-0.01f);
         }else if (thirst <= 1){
@@ -178,6 +202,13 @@ public class Hud : MonoBehaviour
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
         }
+
+        if(Input.GetKeyDown(KeyCode.Tab)){ // close all menus, and starts the tutorial chain
+            inventory_sprite.SetActive(false);
+            help_sprite.SetActive(false);
+            menu_button_UI.SetActive(true);
+        }
+        
         if(Input.GetKeyDown(KeyCode.Escape)){ // close all menus, and starts the tutorial chain
             inventory_sprite.SetActive(false);
             crafting_sprite.SetActive(false);
@@ -288,7 +319,7 @@ public class Hud : MonoBehaviour
         float xpFraction = xp / maxXP;
         float staminaFraction = stamina / maxStamina;
         float hungerFraction = hunger / maxHunger;
-        float thirstFraction = thirst / maxThirst;
+        float thirstFraction = thirst / maxHunger;
 
         if (fillB > hFraction) // if the health has decreased do this
         {

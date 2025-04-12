@@ -8,12 +8,14 @@ public class EquipController : MonoBehaviour
     public GameObject pickaxe_obj;
     public GameObject spear_obj;
     public GameObject sickle_obj;
+    public GameObject player;
     public string current_obj_selected;
     Animator axe_animator;
     Animator pick_animator;
     Animator spear_animator;
     Animator sickle_animator;
     private bool is_mining = false;
+    private bool can_mine = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,6 +28,12 @@ public class EquipController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(player.GetComponent<Hud>().inventory_sprite.activeSelf != true && player.GetComponent<Hud>().help_sprite.activeSelf != true && player.GetComponent<Hud>().menu_button_UI.activeSelf != true && player.GetComponent<Hud>().menu_sprite.activeSelf != true)
+        {
+            can_mine = true;
+        } else {
+            can_mine = false;
+        }
         // the following if statements handle the switching of active equip objects, and triggers the mining animation and variable that triggers resource gathering.
         // the code is essentially the same for each of the four tools, so I will only detail the first one.
         if (current_obj_selected == "empty"){ // sets all tools to deactivated.
@@ -39,7 +47,7 @@ public class EquipController : MonoBehaviour
             pickaxe_obj.SetActive(true);
             axe_obj.SetActive(false);
             sickle_obj.SetActive(false);
-            if(Input.GetKey(KeyCode.Mouse0)){
+            if(Input.GetKey(KeyCode.Mouse0) && can_mine){
                 is_mining = true; 
                 pick_animator.SetBool("Mining", is_mining);// sets mining animation on, which triggers "Inventory" script's mining code
             } else{
@@ -52,7 +60,7 @@ public class EquipController : MonoBehaviour
             axe_obj.SetActive(true);
             pickaxe_obj.SetActive(false);
             sickle_obj.SetActive(false);
-            if(Input.GetKey(KeyCode.Mouse0)){
+            if(Input.GetKey(KeyCode.Mouse0) && can_mine){
                 is_mining = true;
                 axe_animator.SetBool("Mining", is_mining);
             } else {
@@ -65,7 +73,7 @@ public class EquipController : MonoBehaviour
             axe_obj.SetActive(false);
             pickaxe_obj.SetActive(false);
             sickle_obj.SetActive(false);
-            if(Input.GetKey(KeyCode.Mouse0)){
+            if(Input.GetKey(KeyCode.Mouse0) && can_mine){
                 is_mining = true;
                 spear_animator.SetBool("Is_Mining", is_mining);
             } else {
@@ -78,7 +86,7 @@ public class EquipController : MonoBehaviour
             axe_obj.SetActive(false);
             pickaxe_obj.SetActive(false);
             sickle_obj.SetActive(true);
-            if(Input.GetKey(KeyCode.Mouse0)){
+            if(Input.GetKey(KeyCode.Mouse0) && can_mine){
                 is_mining = true;
                 sickle_animator.SetBool("Is_Mining", is_mining);
             } else {
