@@ -1,64 +1,51 @@
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
 
-public class CampfireController : MonoBehaviour
+public class CameraMovementScript : MonoBehaviour
 {
-    public ParticleSystem fire;
-    public GameObject UI;
-    public GameObject button;
-    public GameObject player;
-    void Start(){
-        // defines needed objects for the fire
-        player = GameObject.Find("Player");
-        fire = GetComponentInChildren<ParticleSystem>();
-        fire.gameObject.SetActive(false);
+    public Transform player;
+    public float mouseSensitivity = 2f;
+    public bool isMoving = false;
+    public GameObject inventory_sprite;
+    public GameObject menusprite;
+    public GameObject help_obj;
+
+    float cameraVerticalRotation = 0f;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
     void Update()
-    {
-        // this function detects if the player closes the campfire screen
-        if(Input.GetKeyDown(KeyCode.Escape)){
-            fire.gameObject.SetActive(false);
-            button.SetActive(false);
-            UI.SetActive(false);
+    { 
+        // the if statement checks if inventory or the help screen is active, then if no, locks the cursor.
+        if(inventory_sprite.activeSelf == false && help_obj.activeSelf == false && menusprite.activeSelf == false){ // testing that they are not in inventory
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            // Collect Mouse Input
+
+            float inputX = Input.GetAxis("Mouse X") * mouseSensitivity;
+            float inputY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+
+            // Rotate the Camera around its local X axis
+
+            cameraVerticalRotation -= inputY;
+            cameraVerticalRotation = Mathf.Clamp(cameraVerticalRotation, -90f, 90f);
+            transform.localEulerAngles = Vector3.right * cameraVerticalRotation;
+
+
+            // Rotate the Player Object and the Camera around its Y axis
+
+            player.Rotate(Vector3.up * inputX);
+        } else{
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
-    }
-    public void OnTriggerStay(Collider collider) {
-        // this checks if the player is close enough for the menu button to pop up
-        if(collider.gameObject.name == "Player"){
-            CampfireReady();
-            if(UI.activeSelf){ // if the menu is already active, pressing C cooks the meat.
-                if(Input.GetKeyDown(KeyCode.C)){
-                    CampfireCook();
-                }
-            }
-            else if (Input.GetKey(KeyCode.C)){ // if the menu is not already active, pressing C opens the menu
-                CampfireActivate();
-                Debug.Log("Activated");
-            }  
-        }
-    }
-    public void OnTriggerExit(Collider collider)
-    { // closes the menu when the player moves out of range
-        fire.gameObject.SetActive(false);
-        button.SetActive(false);
-        UI.SetActive(false);
-    }    
-    public void CampfireReady(){ // turns on the menu button
-        button.SetActive(true);
-    }
-    public void CampfireActivate(){ // opens the menu
-        fire.gameObject.SetActive(true);
-        button.SetActive(false);
-        UI.SetActive(true);
-    }
-    public void CampfireCook(){ // cooks the meat
-        player.GetComponent<Inventory>().AddToList("Wood");
-        player.GetComponent<Inventory>().AddToList("Raw Meat");
-        player.GetComponent<Inventory>().Run_Crafting_Func("Cooked Meat");
     }
 }

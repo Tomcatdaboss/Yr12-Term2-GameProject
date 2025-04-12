@@ -51,7 +51,6 @@ public class Hud : MonoBehaviour
     public GameObject menu_cam;
     public GameObject menu_button_UI;
 
-
     // Start is called before the first frame update
     public void Start()
     { // initialising values of the stats
@@ -203,6 +202,7 @@ public class Hud : MonoBehaviour
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
         }
+
         if(Input.GetKeyDown(KeyCode.Tab)){ // close all menus, and starts the tutorial chain
             inventory_sprite.SetActive(false);
             help_sprite.SetActive(false);
@@ -218,7 +218,6 @@ public class Hud : MonoBehaviour
                 tutorialstep += 1;
             }
         }
-
         if(tutorialstep == 1){ // the following if statements control what the tutorial says and whether it is enabled based on what step it is supposed to be on
                 start_sprite_txt.GetComponent<Text>().text = "Press W to move forward, A and D to move left and right, and S to move backwards."; 
                 if (gameObject.GetComponent<PlayerMovement>().isMoving){

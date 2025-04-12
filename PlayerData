@@ -6,11 +6,15 @@ using UnityEngine;
 public class PlayerData
 {
     public float [] player_position;
+    public int tut_step;
     public float health;
     public float stamina;
     public float thirst;
     public float hunger;
     public float level;
+    public float maxHp;
+    public float maxXp;
+    public float maxHT;
     public float xp;
     public string current_equip;
     public float enemy_health_1;
