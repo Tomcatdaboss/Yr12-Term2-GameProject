@@ -102,9 +102,11 @@ public class Hud : MonoBehaviour
         xp_txt.text = XP_level.ToString();
 
         UpdateStatsUI(); // constantly triggers the check to change the UI to reflect current stat levels
-
-        LoseHunger(0.001f);// loses hunger and thirst every frame.
-        LoseThirst(0.001f);
+        if(gameObject.transform.position.x <= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && gameObject.transform.position.x >= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x - 10 && gameObject.transform.position.x <= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && gameObject.transform.position.z >= gameObject.GetComponent<Hud>().DeathSceneTransform.position.z - 10){
+        } else {
+            LoseHunger(0.001f);// loses hunger and thirst every frame when the player is not in the menu.
+            LoseThirst(0.001f);
+        }
         if (hunger <= 1){ // loses health if starving or thirsty
             GainHealth(-0.01f);
         }else if (thirst <= 1){
