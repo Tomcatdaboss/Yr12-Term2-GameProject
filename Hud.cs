@@ -10,14 +10,14 @@ public class Hud : MonoBehaviour
     public GameObject Win_button;
     public GameObject savemanager;
     public GameObject menu_sprite;
+    public GameObject water_overlay_sprite;
     Animator animator;
     private float lerpTimer;
     public int tutorialstep;
-    public float maxHealth = 100f;
-    public float maxStamina = 100f;
-    public float maxHunger = 100f;
-    public float maxThirst = 100f;
-    public float maxXP = 100f;
+    public int maxHealth = 100;
+    public int maxStamina = 100;
+    public int maxHunger = 100;
+    public int maxXP = 100;
     public float stamina;
     public float health;
     public float hunger;
@@ -57,7 +57,7 @@ public class Hud : MonoBehaviour
     { // initialising values of the stats
         health = maxHealth;
         hunger = maxHunger;
-        thirst = maxThirst;
+        thirst = maxHunger;
         stamina = maxStamina;
         xp_txt = XP_text.GetComponent<Text>();
         start_sprite_normal_txt = start_sprite_txt.GetComponent<Text>().text;
@@ -67,7 +67,7 @@ public class Hud : MonoBehaviour
         health = Mathf.Clamp(health, 0, maxHealth);
         stamina = Mathf.Clamp(stamina, 0, maxStamina);
         hunger = Mathf.Clamp(hunger, 0, maxHunger);
-        thirst = Mathf.Clamp(thirst, 0, maxThirst);
+        thirst = Mathf.Clamp(thirst, 0, maxHunger);
         start_sprite.SetActive(false);
     }
 
@@ -85,8 +85,15 @@ public class Hud : MonoBehaviour
         if(hunger >= maxHunger){
             hunger = maxHunger;
         }
-        if(thirst >= maxThirst){
-            thirst = maxThirst;
+        if(thirst >= maxHunger){
+            thirst = maxHunger;
+        }
+
+        if(gameObject.transform.position.y <= 9.4){ // turns on the blue filter when the player gets to water level
+            water_overlay_sprite.SetActive(true);
+        }
+        else {
+            water_overlay_sprite.SetActive(false);
         }
 
         is_winded_end_time = Time.time; // every frame this code updates the current time
@@ -311,7 +318,7 @@ public class Hud : MonoBehaviour
         float xpFraction = xp / maxXP;
         float staminaFraction = stamina / maxStamina;
         float hungerFraction = hunger / maxHunger;
-        float thirstFraction = thirst / maxThirst;
+        float thirstFraction = thirst / maxHunger;
 
         if (fillB > hFraction) // if the health has decreased do this
         {
