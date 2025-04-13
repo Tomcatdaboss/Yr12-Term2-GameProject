@@ -1,131 +1,258 @@
+using System.Collections.Generic;
 using UnityEngine;
-
-public class EnemyMovement : MonoBehaviour
+public class PlayerDataManager : MonoBehaviour
 {
-    public Transform player;
-    private bool player_found = false;
-    private bool at_position = false;
-    public GameObject detector;
-    public Animator animator;
-    public Animator leg_anim_1;
-    public Animator leg_anim_2;
-    public Animator leg_anim_3;
-    public Animator leg_anim_4;
-    public GameObject enemybody;
-    public float health;
-    public int max_health;
-    public double timer = 10;
-    public double atktimer = 10;
-    public double deathtimer = 10;
-    private float new_x;
-    private float new_z;
-    public int minimum_distance;
-    private bool is_moving = true;
-    private bool is_dead = false;
-    private float spawn_x;
-    private float spawn_z;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        spawn_x = gameObject.GetComponent<Transform>().transform.position.x;
-        spawn_z = gameObject.GetComponent<Transform>().transform.position.z;
-        health = max_health;
-        Mathf.Clamp(health, 0, max_health);
+    public GameObject player;
+    public GameObject enemy1;
+    public GameObject enemy2;
+    public GameObject enemy3;
+    public GameObject enemy4;
+    public GameObject enemy5;
+    public GameObject enemy6;
+    private int iterate_names;
+    private int iterate_quants;
+    private int iterate_constructs_coords;
+    private int iterate_constructs_tags;
+    public List <GameObject> SlotList;
+    public List <GameObject> ConstructList;
+    public GameObject campfire;
+    public GameObject menu_obj;
+    void Start() {
+        string path = Application.persistentDataPath + "/playerData.json"; // finds the saved playerData
+        if (System.IO.File.Exists(path)){ // if there has been a save in the past then:
+            string json = System.IO.File.ReadAllText(path);
+            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json); // reads the saved playerData and creates a new instance of playerData called loadedData with the information from the save in it
+            menu_obj.GetComponent<MenuManager>().XP_slider_obj.value = loadedData.maxXp;
+            menu_obj.GetComponent<MenuManager>().HP_slider_obj.value = loadedData.maxHp;
+            menu_obj.GetComponent<MenuManager>().HT_slider_obj.value = loadedData.maxHT;
+            menu_obj.GetComponent<MenuManager>().Dmg_slider_obj.value = loadedData.maxDmg;
+        }
     }
-
-    // Update is called once per frame
     void Update()
     {
-    if (is_dead == false){
-        //Wandering mechanic.
-        // this if statement has a timer that decreases every frame. When it reaches zero, the enemy locates a point nearby, then resets the timer.
-        timer -= 0.01;
-        if(timer <= 0 && player_found == false){
-            timer = 10;
-            new_x = transform.position.x + UnityEngine.Random.Range(-10,10);
-            new_z = transform.position.z + UnityEngine.Random.Range(-10,10);
-            at_position = false;
+        if(Input.GetKeyDown(KeyCode.Q)){ // buttons to save and load the savefile.
+            SaveGame();
         }
-        // this section moves the enemy to the selected point.
-        if (player_found == false && at_position == false){
-            UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
-            transform.LookAt(moveto);
-            float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
-		    if(current_distance > 2){
-			    transform.position += transform.forward * 10 * Time.deltaTime;
-                is_moving = true;	
-            } else {
-                at_position = true;
-                is_moving = false;
+        if(Input.GetKeyDown(KeyCode.L)){
+            LoadGame();
+        }
+    }
+    public void SaveGame() {
+        iterate_names = 0; // initialising values
+        iterate_quants = 0;  
+        iterate_constructs_coords = 0;
+        iterate_constructs_tags = 0;      
+        PlayerData playerData = new PlayerData(); // creates new instance of playerData
+        playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z}; // saving player position
+        playerData.health = player.GetComponent<Hud>().health; // saving stats
+        playerData.stamina = player.GetComponent<Hud>().stamina;
+        playerData.hunger = player.GetComponent<Hud>().hunger;
+        playerData.thirst = player.GetComponent<Hud>().thirst;
+        playerData.level = player.GetComponent<Hud>().XP_level;
+        playerData.xp = player.GetComponent<Hud>().xp;
+        playerData.maxXp = player.GetComponent<Hud>().maxXP;
+        playerData.maxHp = player.GetComponent<Hud>().maxHealth;
+        playerData.maxHT = player.GetComponent<Hud>().maxHunger;
+        playerData.tut_step = player.GetComponent<Hud>().tutorialstep;
+        playerData.current_equip = player.GetComponentInChildren<EquipController>().current_obj_selected; // saving equipped object
+        playerData.enemy_health_1 = enemy1.GetComponent<EnemyMovement>().health; // saving enemy health and position
+        playerData.enemy_health_2 = enemy2.GetComponent<EnemyMovement>().health;
+        playerData.enemy_health_3 = enemy3.GetComponent<EnemyMovement>().health;
+        playerData.enemy_health_4 = enemy4.GetComponent<EnemyMovement>().health;
+        playerData.enemy_health_5 = enemy5.GetComponent<EnemyMovement>().health;
+        playerData.enemy_health_6 = enemy6.GetComponent<EnemyMovement>().health;
+        playerData.enemy_position_1 = new float [] {enemy1.transform.position.x, enemy1.transform.position.y, enemy1.transform.position.z};
+        playerData.enemy_position_2 = new float [] {enemy2.transform.position.x, enemy2.transform.position.y, enemy2.transform.position.z};
+        playerData.enemy_position_3 = new float [] {enemy3.transform.position.x, enemy3.transform.position.y, enemy3.transform.position.z};
+        playerData.enemy_position_4 = new float [] {enemy4.transform.position.x, enemy4.transform.position.y, enemy4.transform.position.z};
+        playerData.enemy_position_5 = new float [] {enemy5.transform.position.x, enemy5.transform.position.y, enemy5.transform.position.z};
+        playerData.enemy_position_6 = new float [] {enemy6.transform.position.x, enemy6.transform.position.y, enemy6.transform.position.z};
+        while (iterate_names <= 18) { // goes throguh inventory and adds all the names of the slots in the slotlist to the playerData instance
+            playerData.slot_name_list.Add(SlotList[iterate_names].GetComponent<Slot>().item_name);            
+            iterate_names += 1;
+        }
+        while (iterate_quants <= 18) { // goes through inventory and adds all the quanities of items of the slots in the slotlist to the playerData instance
+            playerData.slot_quantity_list.Add(SlotList[iterate_quants].GetComponent<Slot>().quantity);
+            iterate_quants += 1;
+        }
+        if(ConstructList.Count > 0){ // if there are any constructs currently, this goes through the list and records their positions and tags in the playerData instance
+            while (iterate_constructs_coords < ConstructList.Count) {
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.x);
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.y);
+                playerData.recorded_construct_coords.Add(ConstructList[iterate_constructs_coords].transform.position.z);
+                iterate_constructs_coords += 1;
+            }
+            while (iterate_constructs_tags < ConstructList.Count) {
+            playerData.recorded_construct_tags.Add(ConstructList[iterate_constructs_tags].tag);
+            iterate_constructs_tags += 1;
             }
         }
-        // this section checks if the animal is moving every frame.
-        leg_anim_1.SetBool("IsMoving", is_moving);
-        leg_anim_2.SetBool("IsMoving", is_moving);
-        leg_anim_3.SetBool("IsMoving", is_moving);
-        leg_anim_4.SetBool("IsMoving", is_moving);
+        string json = JsonUtility.ToJson(playerData); // serialises the playerData instance and saves it in a json file.
+        string path = Application.persistentDataPath + "/playerData.json";
+        System.IO.File.WriteAllText(path, json);
+        
     }
-        // death mechanic
-        if(health <= 0){
-            // triggers dead animation, locks down all other functions, turns enemy to "meat" layer.
-            is_dead = true;
-            animator.SetBool("IsDead", is_dead);
-            detector.SetActive(false);
-            enemybody.layer = 10;
-            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){ // checks if dead anim has started, to trigger timer
-                deathtimer -= 0.01;
-                if(deathtimer <= 0){ // after timer finishes, the enemy respawns and resets all stats
-                    UnityEngine.Vector3 enemyspawn = new UnityEngine.Vector3(spawn_x, 200 ,spawn_z);
-                    player.GetComponent<Hud>().xp += 50;
-                    transform.position = enemyspawn;
-                    enemybody.layer = 11;
-                    detector.SetActive(true);
-                    is_dead = false;
-                    animator.SetBool("IsDead", is_dead);
-                    health = max_health;
-                    deathtimer = 10;
-                    timer = 10;
-                    player_found = false;
+    public void LoadGame() {
+        string path = Application.persistentDataPath + "/playerData.json"; // finds the saved playerData
+        if (System.IO.File.Exists(path)){ // if there has been a save in the past then:
+            iterate_names = 0; // initialising values
+            iterate_quants = 0; 
+            iterate_constructs_coords = 0;
+            iterate_constructs_tags = 0;
+            string json = System.IO.File.ReadAllText(path);
+            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json); // reads the saved playerData and creates a new instance of playerData called loadedData with the information from the save in it
+            int current_constructnum = ConstructList.Count;
+            iterate_constructs_tags = 0;
+            player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]); // loads player position
+            Vector3 loadedPosition = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
+            player.transform.position = loadedPosition;
+            player.GetComponent<Hud>().health = loadedData.health; // resets stats to their loaded values
+            player.GetComponent<Hud>().stamina = loadedData.stamina;
+            player.GetComponent<Hud>().hunger = loadedData.hunger;
+            player.GetComponent<Hud>().thirst = loadedData.thirst;
+            player.GetComponent<Hud>().XP_level = loadedData.level;
+            player.GetComponent<Hud>().xp = loadedData.xp;
+            player.GetComponent<Hud>().tutorialstep = loadedData.tut_step;
+            player.GetComponentInChildren<EquipController>().current_obj_selected = loadedData.current_equip; // replaces current object with the loaded object
+
+            enemy1.GetComponent<EnemyMovement>().health = loadedData.enemy_health_1; // loads enemy heath and position
+            enemy1.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            Vector3 loadedPosition_enemy1 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy1.transform.position = loadedPosition_enemy1;
+
+            enemy2.GetComponent<EnemyMovement>().health = loadedData.enemy_health_2; // loads enemy heath and position
+            enemy2.transform.position = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
+            Vector3 loadedPosition_enemy2 = new Vector3(loadedData.enemy_position_2[0], loadedData.enemy_position_2[1], loadedData.enemy_position_2[2]);
+            enemy2.transform.position = loadedPosition_enemy2;
+
+            enemy3.GetComponent<EnemyMovement>().health = loadedData.enemy_health_3; // loads enemy heath and position
+            enemy3.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            Vector3 loadedPosition_enemy3 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy3.transform.position = loadedPosition_enemy3;
+
+            enemy4.GetComponent<EnemyMovement>().health = loadedData.enemy_health_4; // loads enemy heath and position
+            enemy4.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            Vector3 loadedPosition_enemy4 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy4.transform.position = loadedPosition_enemy4;
+
+            enemy5.GetComponent<EnemyMovement>().health = loadedData.enemy_health_5; // loads enemy heath and position
+            enemy5.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            Vector3 loadedPosition_enemy5 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy5.transform.position = loadedPosition_enemy5;
+
+            enemy6.GetComponent<EnemyMovement>().health = loadedData.enemy_health_6; // loads enemy heath and position
+            enemy6.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            Vector3 loadedPosition_enemy6 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy6.transform.position = loadedPosition_enemy6;
+            while (iterate_names <= 18) // loads the names of the items in the slots
+            {
+                SlotList[iterate_names].GetComponent<Slot>().item_name = loadedData.slot_name_list[iterate_names];
+                iterate_names += 1;
+            }
+            while (iterate_quants <= 18) // loads the quantities of the items in the slots.
+            {
+                SlotList[iterate_quants].GetComponent<Slot>().quantity = loadedData.slot_quantity_list[iterate_quants];
+                iterate_quants += 1;
+            }
+            if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
+                iterate_constructs_tags = 0;
+                Debug.Log("destroying");
+                while (iterate_constructs_tags < current_constructnum){
+                    GameObject current_object = ConstructList[iterate_constructs_tags];
+                    ConstructList.Remove(current_object);
+                    Destroy(current_object);
+                    iterate_constructs_tags += 1;
+                }
+                iterate_constructs_tags = 0;
+            }
+            if (loadedData.recorded_construct_tags.Count > 0) {    // places the saved constructs at their loaded positions and recalls what tags - or what - they are
+                while (iterate_constructs_coords < loadedData.recorded_construct_coords.Count)
+                {
+                    Vector3 spawn_position = new Vector3(loadedData.recorded_construct_coords[iterate_constructs_coords],loadedData.recorded_construct_coords[iterate_constructs_coords + 1],loadedData.recorded_construct_coords[iterate_constructs_coords + 2]);
+                    if (loadedData.recorded_construct_tags[iterate_constructs_tags] == "Campfire"){
+                        player.GetComponent<Inventory>().SpawnConstruct(campfire, spawn_position);
+                    }
+                    iterate_constructs_coords += 3;
+                    iterate_constructs_tags += 1;
                 }
             }
         }
     }
-    void OnTriggerStay(Collider collider){
-        //player detection mechanic
-    if(is_dead == false){
-        float distance = UnityEngine.Vector3.Distance(transform.position,player.position);
-        if(collider.gameObject.tag == "Player"){
-            player_found = true; // stops wandering
-            is_moving = true;
-            UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
-		    transform.LookAt(nony_player);
-		    if(distance > minimum_distance)	// checks that the enemy is not too close
-			    transform.position += transform.forward * 10 * Time.deltaTime;	
-            else{
-                is_moving = false;
-            }
-            }
-            if(distance < 5){
-                // attacking function
-                atktimer -= 0.01;
-                if(atktimer <= 0){ // when timer reaches zero, the attack animation is triggered and the player's health is lowered, then the timer is reset.
-                    animator.SetBool("InAttackRange", true);
-                    if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack")){                       
-                        animator.SetBool("InAttackRange", false);
-                        player.GetComponent<Hud>().health -= 10;
-                        atktimer = 10;
-                    }
-                } 
-            } else {
-                    animator.SetBool("InAttackRange", false);
-            }
+    public void DeathResetGame() { // this function is called on death, it wipes the inventory apart from the equips, and returns the position of the player and their stats to their starting values
+        iterate_names = 4;
+        iterate_quants = 4;
+        player.GetComponentInChildren<EquipController>().current_obj_selected = "empty";
+        player.transform.position = player.GetComponent<Hud>().RespawnPointTransform.position;
+        player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
+        player.GetComponent<Hud>().stamina = 100;
+        player.GetComponent<Hud>().hunger = player.GetComponent<Hud>().maxHunger;
+        player.GetComponent<Hud>().thirst = player.GetComponent<Hud>().maxHunger;
+        while (iterate_names <= 18)
+        {
+            SlotList[iterate_names].GetComponent<Slot>().item_name = "empty";
+            iterate_names += 1;
+        }
+        while (iterate_quants <= 18)
+        {
+            SlotList[iterate_quants].GetComponent<Slot>().quantity = 0;
+            iterate_quants += 1;
         }
     }
-    void OnTriggerExit(Collider collider){ // this deals with when the player escapes detection range and it goes back to wandering.
-        if (collider.gameObject.tag == "Player" && is_dead == false){
-            player_found = false;
-            is_moving = false;
+    public void ClearSave() { // this function is called when the clearsave button is clicked, it wipes everything and returns everything to the starting values
+        iterate_names = 2;
+        iterate_quants = 2;
+        int current_constructnum = ConstructList.Count;
+        player.transform.position = player.GetComponent<Hud>().RespawnPointTransform.position;
+        player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
+        player.GetComponent<Hud>().stamina = 100;
+        player.GetComponent<Hud>().hunger = 100;
+        player.GetComponent<Hud>().thirst = 100;
+        player.GetComponent<Hud>().tutorialstep = 0;
+        menu_obj.GetComponent<MenuManager>().XP_slider_obj.value =  player.GetComponent<Hud>().maxXP;
+        menu_obj.GetComponent<MenuManager>().HP_slider_obj.value =  player.GetComponent<Hud>().maxHealth;
+        menu_obj.GetComponent<MenuManager>().HT_slider_obj.value = player.GetComponent<Hud>().maxHunger;
+        menu_obj.GetComponent<MenuManager>().Dmg_slider_obj.value = player.GetComponent<Inventory>().player_dmg;
+        if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
+            iterate_constructs_tags = 0;
+            Debug.Log("destroying");
+            while (iterate_constructs_tags < current_constructnum){
+                GameObject current_object = ConstructList[iterate_constructs_tags];
+                ConstructList.Remove(current_object);
+                Destroy(current_object);
+                iterate_constructs_tags += 1;
+            }
+            iterate_constructs_tags = 0;
+        }
+        while (iterate_names <= 18)
+        {
+            SlotList[iterate_names].GetComponent<Slot>().item_name = "empty";
+            iterate_names += 1;
+        }
+        while (iterate_quants <= 18)
+        {
+            SlotList[iterate_quants].GetComponent<Slot>().quantity = 0;
+            iterate_quants += 1;
+        }
+        SaveGame();
+    }
+    public void ResetEnemyPositions(){
+        enemy1.GetComponent<EnemyMovement>().health = enemy1.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
+        enemy1.transform.position = enemy1.GetComponent<EnemyMovement>().spawn;
+        enemy2.GetComponent<EnemyMovement>().health = enemy2.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
+        enemy2.transform.position = enemy2.GetComponent<EnemyMovement>().spawn;
+        enemy3.GetComponent<EnemyMovement>().health = enemy3.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
+        enemy3.transform.position = enemy3.GetComponent<EnemyMovement>().spawn;
+        enemy4.GetComponent<EnemyMovement>().health = enemy4.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
+        enemy4.transform.position = enemy4.GetComponent<EnemyMovement>().spawn;
+        enemy5.GetComponent<EnemyMovement>().health = enemy5.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
+        enemy5.transform.position = enemy5.GetComponent<EnemyMovement>().spawn;
+        enemy6.GetComponent<EnemyMovement>().health = enemy6.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
+        enemy6.transform.position = enemy6.GetComponent<EnemyMovement>().spawn;
+    }
+    void OnApplicationQuit(){
+        if(player.transform.position.x <= player.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && player.transform.position.x >= player.GetComponent<Hud>().DeathSceneTransform.position.x - 10 && player.transform.position.x <= player.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && player.transform.position.z >= player.GetComponent<Hud>().DeathSceneTransform.position.z - 10){
+        } else {
+            SaveGame();
         }
     }
 }
