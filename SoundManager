@@ -1,0 +1,42 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SoundManager : MonoBehaviour
+{
+    public static SoundManager instance;
+    public AudioClip playerwalk;
+    public AudioClip fibermine;
+    public AudioClip woodnstonemine;
+    public AudioClip craft;
+    public float volume;
+    public GameObject player;
+    [SerializeField] private bool isalreadyplaying;
+    [SerializeField] private AudioSource SoundObject;
+    void Awake(){
+        if (instance == null){
+            instance = this;
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (player.GetComponent<PlayerMovement>().isMoving && isalreadyplaying == false){
+            PlaySound(playerwalk, volume);
+            isalreadyplaying = true;
+        }
+        if(GetComponentInChildren<AudioSource>() == null){
+            isalreadyplaying = false;
+        }
+    }
+    public void PlaySound(AudioClip audioClip, float volume){
+        AudioSource audioSource = Instantiate(SoundObject, player.transform.position, Quaternion.identity);
+        audioSource.transform.SetParent(gameObject.transform);
+        audioSource.clip = audioClip;
+        audioSource.volume = volume;
+        audioSource.Play();
+        float cliplen = audioClip.length;
+        Destroy(audioSource.gameObject, cliplen);
+    }
+}
