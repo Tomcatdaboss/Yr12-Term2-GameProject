@@ -18,6 +18,7 @@ public class EnemyMovement : MonoBehaviour
     public double deathtimer = 10;
     private float new_x;
     private float new_z;
+    private bool attack_lock;
     public int minimum_distance;
     private bool is_moving = true;
     private bool is_dead = false;
@@ -105,11 +106,17 @@ public class EnemyMovement : MonoBehaviour
             if(distance < 5){
                 // attacking function
                 animator.SetBool("InAttackRange", true);
-                if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack")){                       
-                    player.GetComponent<Hud>().health -= 10;
+                if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && attack_lock == false){                       
+                    player.GetComponent<Hud>().health -= 5;
+                    attack_lock = true;
+                    Debug.Log("Attacked");
+                }
+                if(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){                       
+                    attack_lock = false;
                 }
             } else {
                 animator.SetBool("InAttackRange", false);
+                attack_lock = false;
             }
         }
     }
