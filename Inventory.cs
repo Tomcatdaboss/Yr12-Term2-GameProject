@@ -17,6 +17,7 @@ public class Inventory : MonoBehaviour
     public GameObject campUI;
     public GameObject campbutton;
     public GameObject boat_obj;
+    public float player_dmg;
     // Start is called before the first frame update
     void Start()
     {   
@@ -47,15 +48,23 @@ public class Inventory : MonoBehaviour
     public void Run_Crafting_Func(string output_name){ // takes all the required items as input and outputs an item to theinventory or equip slots
       bool enough_material = true;
       foreach(var x in CraftingList){ // checks that all items in the crafting list are present in the inventory
-        if (FindSlot(x, InventSlots, true).GetComponent<Slot>().quantity - 1 >= 0){
+        try{
+          if (FindSlot(x, InventSlots, false).GetComponent<Slot>().quantity - 1 < 0){
+            enough_material = false;
+          }   
+        } catch {
+          enough_material = false;
+        }
+      }
+      if(enough_material){
+        foreach(var x in CraftingList){ // checks that all items in the crafting list are present in the inventory
           InsertSlot(x, -1, true);
         }
-        else {
-          enough_material = false;
-        }   
       }
+      
       CraftingList.Clear(); // wipes crafting list
       if (enough_material){
+        SoundManager.instance.PlaySound(SoundManager.instance.craft, SoundManager.instance.volume);
         if(output_name == "Campfire") // checks that the item isnt a object or 'construct' like the campfire or boat.
         {
           Debug.Log("Campfire");
@@ -138,11 +147,13 @@ public class Inventory : MonoBehaviour
         if(other.gameObject.layer == 8 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
             InsertSlot("Stone", 1, true);
             gameObject.GetComponent<Hud>().xp += 6;
+            SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
             already_mined = true;
         }
         if(other.gameObject.layer == 9 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
             InsertSlot("Ore", 1, true);
             gameObject.GetComponent<Hud>().xp += 6;
+            SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
             already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
@@ -152,6 +163,7 @@ public class Inventory : MonoBehaviour
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Axe"){
         if(other.gameObject.layer == 7 && equip_controller.GetComponent<EquipController>().axe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("AxeMining_Anim") && already_mined == false){
           InsertSlot("Wood", 1, true);
+          SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
           gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
@@ -167,8 +179,7 @@ public class Inventory : MonoBehaviour
           already_mined = true;
         }
         if(other.gameObject.layer == 11 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
-          other.gameObject.GetComponentInParent<EnemyMovement>().health -= 10;
-          gameObject.GetComponent<Hud>().xp += 9;
+          other.gameObject.GetComponentInParent<EnemyMovement>().health -= player_dmg;
           already_mined = true;
         }
         if(equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
@@ -179,6 +190,7 @@ public class Inventory : MonoBehaviour
         if(other.gameObject.layer == 12 && equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
           InsertSlot("Fiber", 1, true);
           gameObject.GetComponent<Hud>().xp += 6;
+          SoundManager.instance.PlaySound(SoundManager.instance.fibermine, SoundManager.instance.volume);
           already_mined = true;
         }
         if(other.gameObject.layer == 10 && equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
