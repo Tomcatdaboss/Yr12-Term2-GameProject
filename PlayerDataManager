@@ -126,23 +126,23 @@ public class PlayerDataManager : MonoBehaviour
             enemy2.transform.position = loadedPosition_enemy2;
 
             enemy3.GetComponent<EnemyMovement>().health = loadedData.enemy_health_3; // loads enemy heath and position
-            enemy3.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
-            Vector3 loadedPosition_enemy3 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy3.transform.position = new Vector3(loadedData.enemy_position_3[0], loadedData.enemy_position_3[1], loadedData.enemy_position_3[2]);
+            Vector3 loadedPosition_enemy3 = new Vector3(loadedData.enemy_position_3[0], loadedData.enemy_position_3[1], loadedData.enemy_position_3[2]);
             enemy3.transform.position = loadedPosition_enemy3;
 
             enemy4.GetComponent<EnemyMovement>().health = loadedData.enemy_health_4; // loads enemy heath and position
-            enemy4.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
-            Vector3 loadedPosition_enemy4 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy4.transform.position = new Vector3(loadedData.enemy_position_4[0], loadedData.enemy_position_4[1], loadedData.enemy_position_4[2]);
+            Vector3 loadedPosition_enemy4 = new Vector3(loadedData.enemy_position_4[0], loadedData.enemy_position_4[1], loadedData.enemy_position_4[2]);
             enemy4.transform.position = loadedPosition_enemy4;
 
             enemy5.GetComponent<EnemyMovement>().health = loadedData.enemy_health_5; // loads enemy heath and position
-            enemy5.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
-            Vector3 loadedPosition_enemy5 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy5.transform.position = new Vector3(loadedData.enemy_position_5[0], loadedData.enemy_position_5[1], loadedData.enemy_position_5[2]);
+            Vector3 loadedPosition_enemy5 = new Vector3(loadedData.enemy_position_5[0], loadedData.enemy_position_5[1], loadedData.enemy_position_5[2]);
             enemy5.transform.position = loadedPosition_enemy5;
 
             enemy6.GetComponent<EnemyMovement>().health = loadedData.enemy_health_6; // loads enemy heath and position
-            enemy6.transform.position = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
-            Vector3 loadedPosition_enemy6 = new Vector3(loadedData.enemy_position_1[0], loadedData.enemy_position_1[1], loadedData.enemy_position_1[2]);
+            enemy6.transform.position = new Vector3(loadedData.enemy_position_6[0], loadedData.enemy_position_6[1], loadedData.enemy_position_6[2]);
+            Vector3 loadedPosition_enemy6 = new Vector3(loadedData.enemy_position_6[0], loadedData.enemy_position_6[1], loadedData.enemy_position_6[2]);
             enemy6.transform.position = loadedPosition_enemy6;
             while (iterate_names <= 18) // loads the names of the items in the slots
             {
@@ -207,6 +207,8 @@ public class PlayerDataManager : MonoBehaviour
         player.GetComponent<Hud>().stamina = 100;
         player.GetComponent<Hud>().hunger = 100;
         player.GetComponent<Hud>().thirst = 100;
+        player.GetComponent<Hud>().xp = 0;
+        player.GetComponent<Hud>().XP_level = 0;
         player.GetComponent<Hud>().tutorialstep = 0;
         menu_obj.GetComponent<MenuManager>().XP_slider_obj.value =  player.GetComponent<Hud>().maxXP;
         menu_obj.GetComponent<MenuManager>().HP_slider_obj.value =  player.GetComponent<Hud>().maxHealth;
