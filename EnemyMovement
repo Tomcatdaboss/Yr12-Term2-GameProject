@@ -4,7 +4,7 @@ public class EnemyMovement : MonoBehaviour
 {
     public Transform player;
     private bool player_found = false;
-    private bool at_position = false;
+    private bool at_position = true;
     public GameObject detector;
     public Animator animator;
     public Animator leg_anim_1;
@@ -14,11 +14,11 @@ public class EnemyMovement : MonoBehaviour
     public GameObject enemybody;
     public float health;
     public int max_health;
-    public float singleStep;
+    public float turnrad;
     public double timer = 10;
     public double deathtimer = 10;
-    private float new_x;
-    private float new_z;
+    public float new_x;
+    public float new_z;
     private bool attack_lock;
     public int minimum_distance;
     private bool is_moving = true;
@@ -39,20 +39,26 @@ public class EnemyMovement : MonoBehaviour
     if (is_dead == false){
         //Wandering mechanic.
         // this if statement has a timer that decreases every frame. When it reaches zero, the enemy locates a point nearby, then resets the timer.
-        timer -= 0.01;
-        if(timer <= 0 && player_found == false){
-            timer = 10;
-            new_x = transform.position.x + UnityEngine.Random.Range(-10,10);
-            new_z = transform.position.z + UnityEngine.Random.Range(-10,10);
+        //timer -= 0.01;
+        if(at_position && player_found == false){
+            //timer = 10;
+            new_x = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
+            new_z = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
             at_position = false;
         }
         // this section moves the enemy to the selected point.
         if (player_found == false && at_position == false){
             UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
-            transform.LookAt(moveto);
+            Vector3 targetdirection = moveto - transform.position;
+             // The step size is equal to speed times frame time.
+            float singleStep = turnrad * Time.deltaTime;
+            // Rotate the forward vector towards the target direction by one step
+            Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
+            // Calculate a rotation a step closer to the target and applies rotation to this object
+            transform.rotation = Quaternion.LookRotation(newDirection);
             float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
 		    if(current_distance > 2){
-			    transform.position += transform.forward * 10 * Time.deltaTime;
+			    transform.position += transform.forward * 3 * Time.deltaTime;
                 is_moving = true;	
             } else {
                 at_position = true;
@@ -99,7 +105,7 @@ public class EnemyMovement : MonoBehaviour
             UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
             Vector3 targetdirection = nony_player - transform.position;
              // The step size is equal to speed times frame time.
-            singleStep = 3 * Time.deltaTime;
+            float singleStep = turnrad * Time.deltaTime;
             // Rotate the forward vector towards the target direction by one step
             Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
             // Calculate a rotation a step closer to the target and applies rotation to this object
