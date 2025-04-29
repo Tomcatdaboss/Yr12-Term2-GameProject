@@ -14,6 +14,7 @@ public class EnemyMovement : MonoBehaviour
     public GameObject enemybody;
     public float health;
     public int max_health;
+    public float singleStep;
     public double timer = 10;
     public double deathtimer = 10;
     private float new_x;
@@ -96,7 +97,13 @@ public class EnemyMovement : MonoBehaviour
             player_found = true; // stops wandering
             is_moving = true;
             UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
-		    transform.LookAt(nony_player);
+            Vector3 targetdirection = nony_player - transform.position;
+             // The step size is equal to speed times frame time.
+            singleStep = 3 * Time.deltaTime;
+            // Rotate the forward vector towards the target direction by one step
+            Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
+            // Calculate a rotation a step closer to the target and applies rotation to this object
+            transform.rotation = Quaternion.LookRotation(newDirection);
 		    if(distance > minimum_distance)	// checks that the enemy is not too close
 			    transform.position += transform.forward * 10 * Time.deltaTime;	
             else{
