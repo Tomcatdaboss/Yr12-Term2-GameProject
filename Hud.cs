@@ -40,6 +40,7 @@ public class Hud : MonoBehaviour
     public GameObject start_sprite_txt;
     public string start_sprite_normal_txt;
     public float XP_level;
+    private float expomaxXP;
     private Text xp_txt;
     private float lasthealth = 100;
     public float is_winded_start_time = 0;
@@ -50,6 +51,7 @@ public class Hud : MonoBehaviour
     public float is_hurt_time_elapsed = 0;
     public GameObject menu_cam;
     public GameObject menu_button_UI;
+
 
     // Start is called before the first frame update
     public void Start()
@@ -62,6 +64,7 @@ public class Hud : MonoBehaviour
         start_sprite_normal_txt = start_sprite_txt.GetComponent<Text>().text;
         XP_level = 0;
         UpdateStatsUI();
+        expomaxXP = maxXP;
         inventory_sprite.SetActive(false);
         health = Mathf.Clamp(health, 0, maxHealth);
         stamina = Mathf.Clamp(stamina, 0, maxStamina);
@@ -73,12 +76,7 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(xp >= maxXP){ 
-        // these if statements resolve any situations where the changable values in the settings grow to beyond their maximum values as a result of a change in the settings during runtime.
-            XP_level +=1;
-            xp -= maxXP;
-        }
-        if(health >= maxHealth){
+        if(health >= maxHealth){ // these if statements resolve any situations where the changable values in the settings grow to beyond their maximum values as a result of a change in the settings during runtime.
             health = maxHealth;
         }
         if(hunger >= maxHunger){
@@ -163,10 +161,17 @@ public class Hud : MonoBehaviour
             }
         }
        
-        if (xp >= maxXP) // add XP levels when the xp approaches the required amount.
+        if (xp >= maxXP && XP_level <= 6) // add XP levels when the xp approaches the required amount.
         {
             XP_level += 1;
             xp = 0;
+            UpdateStatsUI();
+        }
+        if (xp >= expomaxXP && XP_level > 6) // increases the required maximum XP level
+        {
+            XP_level += 1;
+            xp = 0;
+            expomaxXP = maxXP + ((XP_level - 6) * 50);
             UpdateStatsUI();
         }
         if (health <= 0) //if the character loses all health, teleport the player to the death box and start the death UI.
@@ -198,11 +203,13 @@ public class Hud : MonoBehaviour
             WinGame();
         }
 
-        if(Input.GetKeyDown(KeyCode.I)){ // open inventory
+        if(Input.GetKeyDown(KeyCode.I) && inventory_sprite.activeSelf == false){ // open inventory
             inventory_sprite.SetActive(true);
             crafting_sprite.SetActive(true);
+        } else if (Input.GetKeyDown(KeyCode.I) && inventory_sprite.activeSelf ){
+            inventory_sprite.SetActive(false);
+            crafting_sprite.SetActive(false);
         }
-
         if(Input.GetKeyDown(KeyCode.Tab)){ // close all menus, and starts the tutorial chain
             inventory_sprite.SetActive(false);
             help_sprite.SetActive(false);
@@ -218,8 +225,9 @@ public class Hud : MonoBehaviour
                 tutorialstep += 1;
             }
         }
+
         if(tutorialstep == 1){ // the following if statements control what the tutorial says and whether it is enabled based on what step it is supposed to be on
-                start_sprite_txt.GetComponent<Text>().text = "Press W to move forward, A and D to move left and right, and S to move backwards."; 
+                start_sprite_txt.GetComponent<Text>().text = "Press W to move forward, A and D to move left and right, and S to move backwards. Use Shift to move faster for short periods."; 
                 if (gameObject.GetComponent<PlayerMovement>().isMoving){
                     tutorialstep += 1;
                 }
@@ -257,7 +265,7 @@ public class Hud : MonoBehaviour
             }
         }
         if(tutorialstep == 7){
-            start_sprite_txt.GetComponent<Text>().text = "Great! Now, you can craft new gear! Look around for a rock to mine from, and get 10 stone!"; 
+            start_sprite_txt.GetComponent<Text>().text = "Great! Now, you can craft new gear! Look around for a rock to mine from, and get 10 stone! Rocks are located in the center of the island."; 
             try{
                 if (gameObject.GetComponent<Inventory>().FindSlot("Stone", gameObject.GetComponent<Inventory>().InventSlots, false).GetComponent<Slot>().quantity >= 10){
                     tutorialstep += 1;
@@ -286,10 +294,12 @@ public class Hud : MonoBehaviour
             start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 150);
             start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,70);
         }
-        if(Input.GetKeyDown(KeyCode.H)){ // open the help menu
+        if(Input.GetKeyDown(KeyCode.H) && help_sprite.activeSelf == false){ // open the help menu
             help_sprite.SetActive(true);
+        } else if (Input.GetKeyDown(KeyCode.H) && help_sprite.activeSelf == true){
+            help_sprite.SetActive(false);
         }
-        if (Input.GetKeyDown(KeyCode.R)){ // triggers the respawn process and wipes the inventory due to death
+        if (Input.GetKeyDown(KeyCode.R) && DeathScene.activeSelf){ // triggers the respawn process and wipes the inventory due to death
             savemanager.GetComponent<PlayerDataManager>().DeathResetGame();
             savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
