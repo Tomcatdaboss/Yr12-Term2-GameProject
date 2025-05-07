@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,6 +37,8 @@ public class Hud : MonoBehaviour
     public GameObject help_sprite;
     public GameObject start_sprite;
     public GameObject start_sprite_txt;
+    public Sprite starter_papyrus;
+    public Sprite later_papyrus;
     public string start_sprite_normal_txt;
     public float XP_level;
     private float expomaxXP;
@@ -57,6 +58,7 @@ public class Hud : MonoBehaviour
     public void Start()
     { // initialising values of the stats
         health = maxHealth;
+        lasthealth = maxHealth;
         hunger = maxHunger;
         thirst = maxHunger;
         stamina = maxStamina;
@@ -176,7 +178,7 @@ public class Hud : MonoBehaviour
         }
         if (health <= 0) //if the character loses all health, teleport the player to the death box and start the death UI.
         {
-            health = 100;
+            health = maxHealth;
             DeathScene.SetActive(true);
             transform.position = DeathSceneTransform.position;
         }
@@ -210,7 +212,7 @@ public class Hud : MonoBehaviour
             inventory_sprite.SetActive(false);
             crafting_sprite.SetActive(false);
         }
-        if(Input.GetKeyDown(KeyCode.Tab)){ // close all menus, and starts the tutorial chain
+        if(Input.GetKeyDown(KeyCode.Tab)){ // close all menus and opens the window that takes you back to the main menu
             inventory_sprite.SetActive(false);
             help_sprite.SetActive(false);
             menu_button_UI.SetActive(true);
@@ -288,11 +290,14 @@ public class Hud : MonoBehaviour
         } 
         if(tutorialstep == 0) {
             start_sprite_txt.GetComponent<Text>().text = start_sprite_normal_txt;
+            start_sprite.GetComponent<Image>().sprite = starter_papyrus;
             start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 4);
-            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,275);
+            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(300,320);
         } else {
-            start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 150);
-            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(250,70);
+            start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 70);
+            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(300,300);
+            start_sprite_txt.GetComponent<RectTransform>().anchoredPosition = new Vector2(5, 70);
+            start_sprite.GetComponent<Image>().sprite = later_papyrus;
         }
         if(Input.GetKeyDown(KeyCode.H) && help_sprite.activeSelf == false){ // open the help menu
             help_sprite.SetActive(true);
@@ -304,6 +309,12 @@ public class Hud : MonoBehaviour
             savemanager.GetComponent<PlayerDataManager>().SaveGame();
             DeathScene.SetActive(false);
             WinScene.SetActive(false);
+        }
+        if(Input.GetKeyDown(KeyCode.Escape) && WinScene.activeSelf){
+            WinScene.SetActive(false);
+            inventory_sprite.SetActive(false);
+            help_sprite.SetActive(false);
+            MenuManager.instance.StartMenuFunc();
         }
         if(Input.GetKeyDown(KeyCode.E)){ // check if there is any cooked meat in the inventory, and if so, eat one and add 20 hunger to the hunger stat.
             GameObject prospective_meat_slot = gameObject.GetComponent<Inventory>().FindSlot("Cooked Meat", gameObject.GetComponent<Inventory>().InventSlots, false);
@@ -453,7 +464,7 @@ public class Hud : MonoBehaviour
         is_winded_start_time = 0;
     }
     public void WinGame(){ // if the player presses the S key and wins, trigger the win UI.
-        health = 100;
+        health = maxHealth;
         WinScene.SetActive(true);
         savemanager.GetComponent<PlayerDataManager>().SaveGame();
         transform.position = DeathSceneTransform.position;
