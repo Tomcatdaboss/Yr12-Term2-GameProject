@@ -1,8 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Inventory : MonoBehaviour
@@ -204,13 +200,13 @@ public class Inventory : MonoBehaviour
       }
     }
     public void StartSpawnProcess(GameObject itemPrefab){ // this function is for spawning constructs - it defines the position that the construct will spawn at, then triggers the next part of the function. This is because Unity buttons only accept functions with one paramater.
-      Vector3 playerposition = new Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
+      UnityEngine.Vector3 playerposition = new UnityEngine.Vector3(gameObject.transform.position.x + 2, gameObject.transform.position.y + 2, gameObject.transform.position.z + 2);
       SpawnConstruct(itemPrefab, playerposition);
     }
-    public void SpawnConstruct(GameObject itemPrefab, Vector3 playerposition) // for spawning constructs - takes the position, spawns it, and adds it to the list of constructs in the PlayerDataManager.
+    public void SpawnConstruct(GameObject itemPrefab, UnityEngine.Vector3 playerposition) // for spawning constructs - takes the position, spawns it, and adds it to the list of constructs in the PlayerDataManager.
     {
         if (itemPrefab.tag != "Boat") {
-            GameObject construct = Instantiate(itemPrefab, playerposition, Quaternion.identity);
+            GameObject construct = Instantiate(itemPrefab, playerposition, UnityEngine.Quaternion.identity);
             SaveManager.GetComponent<PlayerDataManager>().ConstructList.Add(construct);
             if(construct.tag == "Campfire"){ // initialises the variables for the campire script of the construct.
               construct.GetComponent<CampfireController>().UI = campUI;
@@ -219,7 +215,7 @@ public class Inventory : MonoBehaviour
             }
             Debug.Log("Spawned");
         } else if (itemPrefab.tag == "Boat"){ // activates the boat object and saves the game - you dont want to lose this milestone to a save issue!
-            boat_obj.SetActive(true);
+            boat_obj.GetComponent<Transform>().localScale = new UnityEngine.Vector3((float)0.7, (float)0.7, (float)0.7);
             SaveManager.GetComponent<PlayerDataManager>().SaveGame();
         }
     }
