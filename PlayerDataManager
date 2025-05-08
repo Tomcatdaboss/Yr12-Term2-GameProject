@@ -16,16 +16,15 @@ public class PlayerDataManager : MonoBehaviour
     public List <GameObject> SlotList;
     public List <GameObject> ConstructList;
     public GameObject campfire;
-    public GameObject menu_obj;
     void Start() {
         string path = Application.persistentDataPath + "/playerData.json"; // finds the saved playerData
         if (System.IO.File.Exists(path)){ // if there has been a save in the past then:
             string json = System.IO.File.ReadAllText(path);
             PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json); // reads the saved playerData and creates a new instance of playerData called loadedData with the information from the save in it
-            menu_obj.GetComponent<MenuManager>().XP_slider_obj.value = loadedData.maxXp;
-            menu_obj.GetComponent<MenuManager>().HP_slider_obj.value = loadedData.maxHp;
-            menu_obj.GetComponent<MenuManager>().HT_slider_obj.value = loadedData.maxHT;
-            menu_obj.GetComponent<MenuManager>().Dmg_slider_obj.value = loadedData.maxDmg;
+            MenuManager.instance.XP_slider_obj.value = loadedData.maxXp;
+            MenuManager.instance.HP_slider_obj.value = loadedData.maxHp;
+            MenuManager.instance.HT_slider_obj.value = loadedData.maxHT;
+            MenuManager.instance.Dmg_slider_obj.value = loadedData.maxDmg;
         }
     }
     void Update()
@@ -210,10 +209,10 @@ public class PlayerDataManager : MonoBehaviour
         player.GetComponent<Hud>().xp = 0;
         player.GetComponent<Hud>().XP_level = 0;
         player.GetComponent<Hud>().tutorialstep = 0;
-        menu_obj.GetComponent<MenuManager>().XP_slider_obj.value =  player.GetComponent<Hud>().maxXP;
-        menu_obj.GetComponent<MenuManager>().HP_slider_obj.value =  player.GetComponent<Hud>().maxHealth;
-        menu_obj.GetComponent<MenuManager>().HT_slider_obj.value = player.GetComponent<Hud>().maxHunger;
-        menu_obj.GetComponent<MenuManager>().Dmg_slider_obj.value = player.GetComponent<Inventory>().player_dmg;
+        MenuManager.instance.XP_slider_obj.value =  player.GetComponent<Hud>().maxXP;
+        MenuManager.instance.HP_slider_obj.value =  player.GetComponent<Hud>().maxHealth;
+        MenuManager.instance.HT_slider_obj.value = player.GetComponent<Hud>().maxHunger;
+        MenuManager.instance.Dmg_slider_obj.value = player.GetComponent<Inventory>().player_dmg;
         if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
             iterate_constructs_tags = 0;
             Debug.Log("destroying");
@@ -235,6 +234,7 @@ public class PlayerDataManager : MonoBehaviour
             SlotList[iterate_quants].GetComponent<Slot>().quantity = 0;
             iterate_quants += 1;
         }
+        player.GetComponent<Inventory>().boat_obj.GetComponent<Transform>().localScale = new Vector3(0,0,0);
         SaveGame();
     }
     public void ResetEnemyPositions(){
