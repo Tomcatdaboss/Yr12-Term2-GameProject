@@ -52,6 +52,8 @@ public class Hud : MonoBehaviour
     public float is_hurt_time_elapsed = 0;
     public GameObject menu_cam;
     public GameObject menu_button_UI;
+    public GameObject hurt_hud;
+    private float hurt_hud_opacity = 0;
 
 
     // Start is called before the first frame update
@@ -182,6 +184,8 @@ public class Hud : MonoBehaviour
             DeathScene.SetActive(true);
             transform.position = DeathSceneTransform.position;
         }
+        hurt_hud_opacity = (maxHealth - health)/maxHealth;
+        hurt_hud.GetComponent<Image>().color = new Color(255, 255, 255, hurt_hud_opacity);
         if (health != lasthealth) // if the player was recently hurt, set is_hurt_start time to Time.time
         {
             is_hurt_start_time = Time.time;
@@ -314,6 +318,8 @@ public class Hud : MonoBehaviour
             WinScene.SetActive(false);
             inventory_sprite.SetActive(false);
             help_sprite.SetActive(false);
+            savemanager.GetComponent<PlayerDataManager>().ClearSave();
+            savemanager.GetComponent<PlayerDataManager>().ResetEnemyPositions();
             MenuManager.instance.StartMenuFunc();
         }
         if(Input.GetKeyDown(KeyCode.E)){ // check if there is any cooked meat in the inventory, and if so, eat one and add 20 hunger to the hunger stat.
