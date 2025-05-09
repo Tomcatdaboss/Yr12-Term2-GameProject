@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -23,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
     Animator animator;
     public bool isMoving = false;
     public GameObject Camera;
+    public GameObject playerfeet;
 
     // Start is called before the first frame update
     void Start()
@@ -44,13 +41,10 @@ public class PlayerMovement : MonoBehaviour
         {
             isMoving = true;
         }
-        if (isOnGround == true)
-        {
-            // get player input
-            horizontalInput = Input.GetAxis("Horizontal");
-            forwardInput = Input.GetAxis("Vertical");
-            real_speed = speed * is_sprinting;
-        }
+        // get player input
+        horizontalInput = Input.GetAxis("Horizontal");
+        forwardInput = Input.GetAxis("Vertical");
+        real_speed = speed * is_sprinting;
 
         // player moving around
         transform.Translate(UnityEngine.Vector3.forward * Time.deltaTime * real_speed * forwardInput);
@@ -58,7 +52,7 @@ public class PlayerMovement : MonoBehaviour
         
         // this prevents the character from clipping through the terrain
         int naturalYDistance = 1;
-        float playerPositionCalculatedY = transform.position.y - Terrain.activeTerrain.SampleHeight(this.transform.position);
+        float playerPositionCalculatedY = playerfeet.transform.position.y - Terrain.activeTerrain.SampleHeight(this.transform.position);
         if (playerPositionCalculatedY < naturalYDistance)
         {
             float pushHeight = 1 - playerPositionCalculatedY;
