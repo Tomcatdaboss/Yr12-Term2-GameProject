@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,24 +17,22 @@ public class PlayerMovement : MonoBehaviour
     public float rotateSpeed = 100f;
     public float maxFallDistance = -30;
     public Transform respawnPoint;
-    Animator animator;
+    Animator animatorp;
     public bool isMoving = false;
     public GameObject Camera;
-    public GameObject playerfeet;
 
     // Start is called before the first frame update
     void Start()
     {
         otherScript = gameObject.GetComponent<Hud>();
         playerRb = GetComponent<Rigidbody>();
-        animator = Camera.GetComponent<Animator>();
+        animatorp = gameObject.GetComponent<Animator>();
         y_at_jump = transform.position.y;
     }
 
     // Update is called once per frame
     void Update()
     {
-        animator.SetBool("IsMoving", isMoving);
         if (Input.GetKey(KeyCode.W) == false && Input.GetKey(KeyCode.S) == false && Input.GetKey(KeyCode.A) == false && Input.GetKey(KeyCode.D) == false)
         {
             isMoving = false;
@@ -52,10 +51,10 @@ public class PlayerMovement : MonoBehaviour
         
         // this prevents the character from clipping through the terrain
         int naturalYDistance = 1;
-        float playerPositionCalculatedY = playerfeet.transform.position.y - Terrain.activeTerrain.SampleHeight(this.transform.position);
+        float playerPositionCalculatedY = gameObject.transform.position.y - Terrain.activeTerrain.SampleHeight(transform.position);
         if (playerPositionCalculatedY < naturalYDistance)
         {
-            float pushHeight = 1 - playerPositionCalculatedY;
+            float pushHeight = 2 - playerPositionCalculatedY;
             transform.position += new UnityEngine.Vector3(0, pushHeight, 0);
         }
 
@@ -76,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
         {
             is_sprinting = 1;
         }
-        animator.SetBool("IsMoving", isMoving);
+        animatorp.SetBool("IsMoving", isMoving);
     }
 
     private void OnCollisionEnter(Collision collision) // allows the player to jump again upon hitting the grounds
@@ -105,7 +104,6 @@ public class PlayerMovement : MonoBehaviour
         float resultant_health_loss = 0;
         if (y_change > 10){
             resultant_health_loss = y_change / 2;
-            Debug.Log("fall damage triggered");
         }
         otherScript.GainHealth(-resultant_health_loss);
     }
