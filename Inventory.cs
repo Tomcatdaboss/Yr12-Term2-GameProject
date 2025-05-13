@@ -63,20 +63,15 @@ public class Inventory : MonoBehaviour
         SoundManager.instance.PlaySound(SoundManager.instance.craft, SoundManager.instance.volume);
         if(output_name == "Campfire") // checks that the item isnt a object or 'construct' like the campfire or boat.
         {
-          Debug.Log("Campfire");
         }
         else if (output_name == "Ship"){
-          Debug.Log("ship");
         } else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle"){ // if the output is an equipable item, sends it to the equip slots. If not, sends it to the inventory.
           InsertSlot(output_name, 1, true);
-          Debug.Log(output_name);
         } else{
           InsertSlot(output_name, 1, false);
-          Debug.Log("EquipSlots");
         }
       }
       else{
-        Debug.Log(enough_material);
       }
     }
     public GameObject FindSlot(string given_name, List<GameObject> TypeSlots, bool adding) // this is an iteration function used to find items in the inventory, suitable slots to place items in, etc.
@@ -103,8 +98,7 @@ public class Inventory : MonoBehaviour
             }
           }
           return null;
-      }else if (TypeSlots == EquipSlots){ // goes through all the different equip slots for one that is empty
-          Debug.Log("Equip Path in FindSlot");     
+      }else if (TypeSlots == EquipSlots){ // goes through all the different equip slots for one that is empty 
           int i = 0;
           while (i < EquipSlots.Count){
             if (EquipSlots[i].GetComponent<Slot>().item_name == "empty")
@@ -126,7 +120,6 @@ public class Inventory : MonoBehaviour
         used_slot = FindSlot(new_item_name, InventSlots, true);
       }else{
         used_slot = FindSlot(new_item_name, EquipSlots, true);
-        Debug.Log("EquipPathTaken");
       }
        if (used_slot == null){ // if no slot is found by the FindSlot function, do nothing
        } else { // place the item in the given slot.
@@ -140,61 +133,60 @@ public class Inventory : MonoBehaviour
         gameObject.GetComponent<Hud>().thirst = 100;
       }
       if (equip_controller.GetComponent<EquipController>().current_obj_selected == "Pickaxe"){
-        if(other.gameObject.layer == 8 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
+        if(other.gameObject.layer == 8 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMinePickorAx") && already_mined == false){
             InsertSlot("Stone", 1, true);
             gameObject.GetComponent<Hud>().xp += 6;
             SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
             already_mined = true;
         }
-        if(other.gameObject.layer == 9 && equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Pickaxe_mining_anim") && already_mined == false){
+        if(other.gameObject.layer == 9 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMinePickorAx") && already_mined == false){
             InsertSlot("Ore", 1, true);
             gameObject.GetComponent<Hud>().xp += 6;
             SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
             already_mined = true;
         }
-        if(equip_controller.GetComponent<EquipController>().pickaxe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
           already_mined = false;
         }
       }
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Axe"){
-        if(other.gameObject.layer == 7 && equip_controller.GetComponent<EquipController>().axe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("AxeMining_Anim") && already_mined == false){
+        if(other.gameObject.layer == 7 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMinePickorAx") && already_mined == false){
           InsertSlot("Wood", 1, true);
           SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
           gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
-        if(equip_controller.GetComponent<EquipController>().axe_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
           already_mined = false;
         } 
       }
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Spear"){
-        Debug.Log(other.gameObject.layer);
-        if(other.gameObject.layer == 10 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
+        if(other.gameObject.layer == 10 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMineSpear") && already_mined == false){
           InsertSlot("Raw Meat", 1, true);
           gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
-        if(other.gameObject.layer == 11 && equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Spearing_Anim") && already_mined == false){
+        if(other.gameObject.layer == 11 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMineSpear") && already_mined == false){
           other.gameObject.GetComponentInParent<EnemyMovement>().health -= player_dmg;
           already_mined = true;
         }
-        if(equip_controller.GetComponent<EquipController>().spear_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
           already_mined = false;
         } 
       }
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Sickle"){
-        if(other.gameObject.layer == 12 && equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
+        if(other.gameObject.layer == 12 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerSickleMine") && already_mined == false){
           InsertSlot("Fiber", 1, true);
           gameObject.GetComponent<Hud>().xp += 6;
           SoundManager.instance.PlaySound(SoundManager.instance.fibermine, SoundManager.instance.volume);
           already_mined = true;
         }
-        if(other.gameObject.layer == 10 && equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("SickleMining_Anim") && already_mined == false){
+        if(other.gameObject.layer == 10 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerSickleMine") && already_mined == false){
           InsertSlot("Hide", 1, true);
           gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
-        if(equip_controller.GetComponent<EquipController>().sickle_obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
           already_mined = false;
         } 
       }
@@ -213,7 +205,6 @@ public class Inventory : MonoBehaviour
               construct.GetComponent<CampfireController>().button = campbutton;
               construct.GetComponent<CampfireController>().player = gameObject;
             }
-            Debug.Log("Spawned");
         } else if (itemPrefab.tag == "Boat"){ // activates the boat object and saves the game - you dont want to lose this milestone to a save issue!
             boat_obj.GetComponent<Transform>().localScale = new UnityEngine.Vector3((float)0.7, (float)0.7, (float)0.7);
             SaveManager.GetComponent<PlayerDataManager>().SaveGame();
