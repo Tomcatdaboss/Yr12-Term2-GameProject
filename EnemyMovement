@@ -7,10 +7,6 @@ public class EnemyMovement : MonoBehaviour
     private bool at_position = true;
     public GameObject detector;
     public Animator animator;
-    public Animator leg_anim_1;
-    public Animator leg_anim_2;
-    public Animator leg_anim_3;
-    public Animator leg_anim_4;
     public GameObject enemybody;
     public float health;
     public int max_health;
@@ -36,41 +32,38 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-    if (is_dead == false){
-        //Wandering mechanic.
-        // this if statement has a timer that decreases every frame. When it reaches zero, the enemy locates a point nearby, then resets the timer.
-        //timer -= 0.01;
-        if(at_position && player_found == false){
-            //timer = 10;
-            new_x = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
-            new_z = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
-            at_position = false;
-        }
-        // this section moves the enemy to the selected point.
-        if (player_found == false && at_position == false){
-            UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
-            Vector3 targetdirection = moveto - transform.position;
-             // The step size is equal to speed times frame time.
-            float singleStep = turnrad * Time.deltaTime;
-            // Rotate the forward vector towards the target direction by one step
-            Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
-            // Calculate a rotation a step closer to the target and applies rotation to this object
-            transform.rotation = Quaternion.LookRotation(newDirection);
-            float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
-		    if(current_distance > 2){
-			    transform.position += transform.forward * 3 * Time.deltaTime;
-                is_moving = true;	
-            } else {
-                at_position = true;
-                is_moving = false;
+        if (is_dead == false){
+            //Wandering mechanic.
+            // this if statement has a timer that decreases every frame. When it reaches zero, the enemy locates a point nearby, then resets the timer.
+            //timer -= 0.01;
+            if(at_position && player_found == false){
+                //timer = 10;
+                new_x = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
+                new_z = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
+                at_position = false;
+            }
+            // this section moves the enemy to the selected point.
+            if (player_found == false && at_position == false){
+                UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
+                Vector3 targetdirection = moveto - transform.position;
+                // The step size is equal to speed times frame time.
+                float singleStep = turnrad * Time.deltaTime;
+                // Rotate the forward vector towards the target direction by one step
+                Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
+                // Calculate a rotation a step closer to the target and applies rotation to this object
+                transform.rotation = Quaternion.LookRotation(newDirection);
+                float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
+                if(current_distance > 2){
+                    transform.position += transform.forward * 3 * Time.deltaTime;
+                    is_moving = true;	
+                } else {
+                    at_position = true;
+                    is_moving = false;
+                }
             }
         }
         // this section checks if the animal is moving every frame.
-        leg_anim_1.SetBool("IsMoving", is_moving);
-        leg_anim_2.SetBool("IsMoving", is_moving);
-        leg_anim_3.SetBool("IsMoving", is_moving);
-        leg_anim_4.SetBool("IsMoving", is_moving);
-    }
+        animator.SetBool("IsMoving", is_moving);
         // death mechanic
         if(health <= 0){
             // triggers dead animation, locks down all other functions, turns enemy to "meat" layer.
@@ -94,15 +87,10 @@ public class EnemyMovement : MonoBehaviour
                 }
             }
         }
-    }
-    void OnTriggerStay(Collider collider){
-        //player detection mechanic
-    if(is_dead == false){
-        float distance = UnityEngine.Vector3.Distance(transform.position,player.position);
-        if(collider.gameObject.tag == "Player"){
-            player_found = true; // stops wandering
+        if(is_dead == false && player_found){
+            float distance = Vector3.Distance(transform.position,player.position);
             is_moving = true;
-            UnityEngine.Vector3 nony_player = new UnityEngine.Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
+            Vector3 nony_player = new Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
             Vector3 targetdirection = nony_player - transform.position;
              // The step size is equal to speed times frame time.
             float singleStep = turnrad * Time.deltaTime;
@@ -110,26 +98,34 @@ public class EnemyMovement : MonoBehaviour
             Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
             // Calculate a rotation a step closer to the target and applies rotation to this object
             transform.rotation = Quaternion.LookRotation(newDirection);
-		    if(distance > minimum_distance)	// checks that the enemy is not too close
+		    if(distance > minimum_distance){// checks that the enemy is not too close
 			    transform.position += transform.forward * 10 * Time.deltaTime;	
+            }
             else{
                 is_moving = false;
             }
-            }
-            if(distance < 5){
-                // attacking function
-                animator.SetBool("InAttackRange", true);
-                if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && attack_lock == false){                       
-                    player.GetComponent<Hud>().health -= 5;
-                    attack_lock = true;
-                    Debug.Log("Attacked");
-                }
-                if(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){                       
+        }
+    }
+    void OnTriggerStay(Collider collider){
+        //player detection mechanic
+        if(is_dead == false){
+            float distance = Vector3.Distance(transform.position,player.position);
+            if(collider.gameObject.tag == "Player"){
+                player_found = true; // stops wandering    
+                if(distance < 5){
+                    // attacking function
+                    animator.SetBool("InAttackRange", true);
+                    if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && attack_lock == false){                       
+                        player.GetComponent<Hud>().health -= 5;
+                        attack_lock = true;
+                    }
+                    if(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){                       
+                        attack_lock = false;
+                    }
+                } else {
+                    animator.SetBool("InAttackRange", false);
                     attack_lock = false;
                 }
-            } else {
-                animator.SetBool("InAttackRange", false);
-                attack_lock = false;
             }
         }
     }
