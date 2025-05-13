@@ -1,3 +1,4 @@
+//using System.Numerics;
 using UnityEngine;
 using UnityEngine.Animations;
 
@@ -17,6 +18,8 @@ public class PlayerMovement : MonoBehaviour
     public float rotateSpeed = 100f;
     public float maxFallDistance = -30;
     public Transform respawnPoint;
+    private Vector3 PlayerMovementInput;
+    private Vector3 MoveVector;
     Animator animatorp;
     public bool isMoving = false;
     public GameObject Camera;
@@ -41,39 +44,32 @@ public class PlayerMovement : MonoBehaviour
             isMoving = true;
         }
         // get player input
-        horizontalInput = Input.GetAxis("Horizontal");
-        forwardInput = Input.GetAxis("Vertical");
         real_speed = speed * is_sprinting;
 
         // player moving around
-        transform.Translate(UnityEngine.Vector3.forward * Time.deltaTime * real_speed * forwardInput);
-        transform.Translate(UnityEngine.Vector3.right * Time.deltaTime * speed * horizontalInput);
         
-        // this prevents the character from clipping through the terrain
-        int naturalYDistance = 1;
-        float playerPositionCalculatedY = gameObject.transform.position.y - Terrain.activeTerrain.SampleHeight(transform.position);
-        if (playerPositionCalculatedY < naturalYDistance)
-        {
-            float pushHeight = 2 - playerPositionCalculatedY;
-            transform.position += new UnityEngine.Vector3(0, pushHeight, 0);
-        }
+        PlayerMovementInput = new Vector3 (Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
+        MoveVector = transform.TransformDirection(PlayerMovementInput) * real_speed;
+        playerRb.velocity = new Vector3 (MoveVector.x, playerRb.velocity.y, MoveVector.z);
 
         //player jump
         if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
         {
             playerRb.AddForce(UnityEngine.Vector3.up * jumpForce, ForceMode.Impulse);
             isOnGround = false;
-            y_at_jump = gameObject.transform.position.y;
+            y_at_jump = gameObject.transform.position.y; // records current y value to calculate fall dmg
 
         }
         //player sprint
         if (otherScript.is_sprinting_bool == true)
         {
             is_sprinting = 2;
+            animatorp.speed = 2;
         }
         if (otherScript.is_sprinting_bool == false)
         {
             is_sprinting = 1;
+            animatorp.speed = 1;
         }
         animatorp.SetBool("IsMoving", isMoving);
     }
