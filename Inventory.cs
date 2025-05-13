@@ -133,60 +133,60 @@ public class Inventory : MonoBehaviour
         gameObject.GetComponent<Hud>().thirst = 100;
       }
       if (equip_controller.GetComponent<EquipController>().current_obj_selected == "Pickaxe"){
-        if(other.gameObject.layer == 8 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMinePickorAx") && already_mined == false){
+        if(other.gameObject.layer == 8 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("PlayerMinePickorAx") && already_mined == false){
             InsertSlot("Stone", 1, true);
             gameObject.GetComponent<Hud>().xp += 6;
             SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
             already_mined = true;
         }
-        if(other.gameObject.layer == 9 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMinePickorAx") && already_mined == false){
+        if(other.gameObject.layer == 9 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("PlayerMinePickorAx") && already_mined == false){
             InsertSlot("Ore", 1, true);
             gameObject.GetComponent<Hud>().xp += 6;
             SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
             already_mined = true;
         }
-        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("Idle")){
           already_mined = false;
         }
       }
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Axe"){
-        if(other.gameObject.layer == 7 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMinePickorAx") && already_mined == false){
+        if(other.gameObject.layer == 7 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("PlayerMinePickorAx") && already_mined == false){
           InsertSlot("Wood", 1, true);
           SoundManager.instance.PlaySound(SoundManager.instance.woodnstonemine, SoundManager.instance.volume);
           gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
-        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("Idle")){
           already_mined = false;
         } 
       }
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Spear"){
-        if(other.gameObject.layer == 10 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMineSpear") && already_mined == false){
+        if(other.gameObject.layer == 10 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("PlayerMineSpear") && already_mined == false){
           InsertSlot("Raw Meat", 1, true);
           gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
-        if(other.gameObject.layer == 11 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerMineSpear") && already_mined == false){
+        if(other.gameObject.layer == 11 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("PlayerMineSpear") && already_mined == false){
           other.gameObject.GetComponentInParent<EnemyMovement>().health -= player_dmg;
           already_mined = true;
         }
-        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("Idle")){
           already_mined = false;
         } 
       }
       if(equip_controller.GetComponent<EquipController>().current_obj_selected == "Sickle"){
-        if(other.gameObject.layer == 12 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerSickleMine") && already_mined == false){
+        if(other.gameObject.layer == 12 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("PlayerSickleMine") && already_mined == false){
           InsertSlot("Fiber", 1, true);
           gameObject.GetComponent<Hud>().xp += 6;
           SoundManager.instance.PlaySound(SoundManager.instance.fibermine, SoundManager.instance.volume);
           already_mined = true;
         }
-        if(other.gameObject.layer == 10 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("PlayerSickleMine") && already_mined == false){
+        if(other.gameObject.layer == 10 && gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("PlayerSickleMine") && already_mined == false){
           InsertSlot("Hide", 1, true);
           gameObject.GetComponent<Hud>().xp += 6;
           already_mined = true;
         }
-        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+        if(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(1).IsName("Idle")){
           already_mined = false;
         } 
       }
