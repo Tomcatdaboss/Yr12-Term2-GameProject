@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Inventory : MonoBehaviour
@@ -45,7 +46,15 @@ public class Inventory : MonoBehaviour
       bool enough_material = true;
       foreach(var x in CraftingList){ // checks that all items in the crafting list are present in the inventory
         try{
-          if (FindSlot(x, InventSlots, false).GetComponent<Slot>().quantity - 1 < 0){
+          int numofthing = 0;
+          int i = 0;
+          while (i < CraftingList.Count){
+            if(CraftingList[i] == x){
+              numofthing += 1;
+            }
+            i += 1;
+          }
+          if (FindSlot(x, InventSlots, false).GetComponent<Slot>().quantity - (1 * numofthing) < 0){
             enough_material = false;
           }   
         } catch {
@@ -67,7 +76,7 @@ public class Inventory : MonoBehaviour
         else if (output_name == "Ship"){
         } else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle"){ // if the output is an equipable item, sends it to the equip slots. If not, sends it to the inventory.
           InsertSlot(output_name, 1, true);
-        } else{
+        } else if (FindSlot(output_name, EquipSlots, false) == null){ // makes sure that you can't craft two of the same tool
           InsertSlot(output_name, 1, false);
         }
       }
