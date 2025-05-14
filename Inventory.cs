@@ -110,7 +110,10 @@ public class Inventory : MonoBehaviour
       }else if (TypeSlots == EquipSlots){ // goes through all the different equip slots for one that is empty 
           int i = 0;
           while (i < EquipSlots.Count){
-            if (EquipSlots[i].GetComponent<Slot>().item_name == "empty")
+            if(EquipSlots[i].GetComponent<Slot>().item_name == given_name && adding == false){
+              return EquipSlots[i];
+            }
+            if (EquipSlots[i].GetComponent<Slot>().item_name == "empty" && adding == true)
             {
               return EquipSlots[i];
             }
