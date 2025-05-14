@@ -80,7 +80,7 @@ public class Inventory : MonoBehaviour
           InsertSlot(output_name, 1, false);
         } else {
           foreach(var x in CraftingList){ // puts back items in case the craft does not go through
-            InsertSlot(x, -1, true);
+            InsertSlot(x, 1, true);
           }
         }
       }
