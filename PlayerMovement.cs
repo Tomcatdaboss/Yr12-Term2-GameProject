@@ -1,84 +1,181 @@
-//using System.Numerics;
 using UnityEngine;
-using UnityEngine.Animations;
-
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 10.0f;
-    public float jumpForce = 5;
+    private float moveSpeed;
+    public float walkSpeed;
+    public float sprintSpeed;
+    public float groundDrag;
+    public float jumpForce;
+    private float jumpCooldown = 1;
+    private float airMultiplier = 0.4f;
+    private bool readyToJump;
+    public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode sprintKey = KeyCode.LeftShift;
+    public float playerHeight;
+    public LayerMask whatIsGround;
+    bool grounded;
+    public float maxSlopeAngle;
+    private RaycastHit slopeHit;
+    private bool exitingSlope;
+    float horizontalInput;
+    float verticalInput;
+    private Vector3 moveDirection;
+    Rigidbody rb;
     public Hud otherScript;
-    public bool isOnGround = true;
-    private float horizontalInput;
-    public float real_speed;
-    private float is_sprinting = 1;
-    private float forwardInput;
     public float y_at_jump;
     public float y_after_jump;
-    private Rigidbody playerRb;
     public float rotateSpeed = 100f;
     public float maxFallDistance = -30;
     public Transform respawnPoint;
-    private Vector3 PlayerMovementInput;
-    private Vector3 MoveVector;
     Animator animatorp;
     public bool isMoving = false;
     public GameObject Camera;
-
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+        rb = GetComponent<Rigidbody>();
+        readyToJump = true;
         otherScript = gameObject.GetComponent<Hud>();
-        playerRb = GetComponent<Rigidbody>();
         animatorp = gameObject.GetComponent<Animator>();
         y_at_jump = transform.position.y;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (Input.GetKey(KeyCode.W) == false && Input.GetKey(KeyCode.S) == false && Input.GetKey(KeyCode.A) == false && Input.GetKey(KeyCode.D) == false)
+        // ground check
+        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+        MyInput();
+        SpeedControl();
+        StateHandler();
+        // handle drag
+        if (grounded)
         {
-            isMoving = false;
-        } else
+            rb.drag = groundDrag;
+        }
+        if (moveDirection.magnitude > 0)
         {
             isMoving = true;
         }
-        // get player input
-        real_speed = speed * is_sprinting;
-
-        // player moving around
-        
-        PlayerMovementInput = new Vector3 (Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
-        MoveVector = transform.TransformDirection(PlayerMovementInput) * real_speed;
-        playerRb.velocity = new Vector3 (MoveVector.x, playerRb.velocity.y, MoveVector.z);
-
-        //player jump
-        if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
+        else
         {
-            playerRb.AddForce(UnityEngine.Vector3.up * jumpForce, ForceMode.Impulse);
-            isOnGround = false;
-            y_at_jump = gameObject.transform.position.y; // records current y value to calculate fall dmg
-
-        }
-        //player sprint
-        if (otherScript.is_sprinting_bool == true)
-        {
-            is_sprinting = 2;
-            animatorp.speed = 2;
-        }
-        if (otherScript.is_sprinting_bool == false)
-        {
-            is_sprinting = 1;
-            animatorp.speed = 1;
+            isMoving = false;
         }
         animatorp.SetBool("IsMoving", isMoving);
     }
 
+    private void FixedUpdate()
+    {
+        MovePlayer();
+    }
+
+    private void MyInput()
+    {
+        //actually getting input from WASD
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+        verticalInput = Input.GetAxisRaw("Vertical");
+        // when to jump
+        if (Input.GetKey(jumpKey) && readyToJump && grounded)
+        {
+            readyToJump = false;
+            Jump();
+            Invoke(nameof(ResetJump), jumpCooldown);
+        }
+    }
+
+    private void StateHandler()
+    {
+        // Mode - Sprinting
+        if (grounded && Input.GetKey(sprintKey))
+        {
+            moveSpeed = sprintSpeed;
+            animatorp.speed = 2;
+        }
+        // Mode - Walking
+        else if (grounded)
+        {
+            moveSpeed = walkSpeed;
+            animatorp.speed = 1;
+        }
+        // Mode - Falling
+        else
+        {
+            animatorp.speed = 1;
+            rb.drag = 0;
+        }
+    }
+    private void MovePlayer()
+    {
+        // calculate movement direction
+        moveDirection = transform.forward * verticalInput + transform.right * horizontalInput;
+        // on slope
+        if (OnSlope() && !exitingSlope)
+        {
+            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
+            if (rb.velocity.y > 0)
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+        }
+        // on ground
+        else if (grounded)
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        // in air
+        else if (!grounded)
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+        // turn gravity off while on slope
+        rb.useGravity = !OnSlope();
+    }
+
+    private void SpeedControl()
+    {
+        // limiting speed on slope
+        if (OnSlope() && !exitingSlope)
+        {
+            if (rb.velocity.magnitude > moveSpeed)
+                rb.velocity = rb.velocity.normalized * moveSpeed;
+        }
+        // limiting speed on ground or in air
+        else
+        {
+            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            // limit velocity if needed
+            if (flatVel.magnitude > moveSpeed)
+            {
+                Vector3 limitedVel = flatVel.normalized * moveSpeed;
+                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
+            }
+        }
+    }
+
+    private void Jump()
+    {
+        exitingSlope = true;
+        // reset y velocity
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
+    private void ResetJump()
+    {
+        readyToJump = true;
+        exitingSlope = false;
+    }
+
+    private bool OnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle < maxSlopeAngle && angle != 0;
+        }
+        return false;
+    }
+
+    private Vector3 GetSlopeMoveDirection()
+    {
+        return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+    }
     private void OnCollisionEnter(Collision collision) // allows the player to jump again upon hitting the grounds
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            isOnGround = true;
+            grounded = true;
             y_after_jump = gameObject.transform.position.y;
             FallDmgCalc(y_at_jump - y_after_jump);
         }
