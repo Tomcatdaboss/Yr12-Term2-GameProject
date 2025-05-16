@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
 
 public class CameraMovementScript : MonoBehaviour
 {
@@ -9,8 +6,9 @@ public class CameraMovementScript : MonoBehaviour
     public float mouseSensitivity = 2f;
     public bool isMoving = false;
     public GameObject inventory_sprite;
+    public GameObject menusprite;
     public GameObject help_obj;
-
+    public GameObject menubtnsprite;
     float cameraVerticalRotation = 0f;
 
     // Start is called before the first frame update
@@ -24,7 +22,7 @@ public class CameraMovementScript : MonoBehaviour
     void Update()
     { 
         // the if statement checks if inventory or the help screen is active, then if no, locks the cursor.
-        if(inventory_sprite.activeSelf == false && help_obj.activeSelf == false){ // testing that they are not in inventory
+        if(inventory_sprite.activeSelf == false && help_obj.activeSelf == false && menusprite.activeSelf == false && menubtnsprite.activeSelf == false){ // testing that they are not in inventory
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             // Collect Mouse Input
@@ -35,7 +33,7 @@ public class CameraMovementScript : MonoBehaviour
             // Rotate the Camera around its local X axis
 
             cameraVerticalRotation -= inputY;
-            cameraVerticalRotation = Mathf.Clamp(cameraVerticalRotation, -90f, 90f);
+            cameraVerticalRotation = Mathf.Clamp(cameraVerticalRotation, -90f, 50f);
             transform.localEulerAngles = Vector3.right * cameraVerticalRotation;
 
 
