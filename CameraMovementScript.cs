@@ -9,6 +9,7 @@ public class CameraMovementScript : MonoBehaviour
     public GameObject menusprite;
     public GameObject help_obj;
     public GameObject menubtnsprite;
+    public GameObject campfireUI;
     float cameraVerticalRotation = 0f;
 
     // Start is called before the first frame update
@@ -22,7 +23,7 @@ public class CameraMovementScript : MonoBehaviour
     void Update()
     { 
         // the if statement checks if inventory or the help screen is active, then if no, locks the cursor.
-        if(inventory_sprite.activeSelf == false && help_obj.activeSelf == false && menusprite.activeSelf == false && menubtnsprite.activeSelf == false){ // testing that they are not in inventory
+        if(inventory_sprite.activeSelf == false && help_obj.activeSelf == false && menusprite.activeSelf == false && menubtnsprite.activeSelf == false && campfireUI.activeSelf == false){ // testing that they are not in inventory
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             // Collect Mouse Input
