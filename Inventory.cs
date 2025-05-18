@@ -64,34 +64,31 @@ public class Inventory : MonoBehaviour
       if (enough_material)
       {
         SoundManager.instance.PlaySound(SoundManager.instance.craft, SoundManager.instance.volume);
-        if (output_name == "Campfire") // checks that the item isnt a object or 'construct' like the campfire or boat.
-        {
-          foreach (var x in CraftingList)
-          { // checks that all items in the crafting list are present in the inventory
-            InsertSlot(x, -1, true);
-          }
+      if (output_name == "Campfire") // checks that the item isnt a object or 'construct' like the campfire or boat.
+      {
+        foreach (var x in CraftingList)
+        { // checks that all items in the crafting list are present in the inventory
+          InsertSlot(x, -1, true);
         }
-        else if (output_name == "Ship")
-        {
+      }
+      else if (output_name == "Ship")
+      {
+      }
+      else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle")
+      { // if the output is an equipable item, sends it to the equip slots. If not, sends it to the inventory.
+        InsertSlot(output_name, 1, true);
+      }
+      else if (FindSlot(output_name, EquipSlots, false) == null)
+      { // makes sure that you can't craft two of the same tool
+        foreach (var x in CraftingList)
+        { // puts back items in case the craft does not go through
+          InsertSlot(x, 1, true);
         }
-        else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle")
-        { // if the output is an equipable item, sends it to the equip slots. If not, sends it to the inventory.
-          InsertSlot(output_name, 1, true);
-        }
-        else if (FindSlot(output_name, EquipSlots, false) == null)
-        { // makes sure that you can't craft two of the same tool
-          foreach (var x in CraftingList)
-          { // puts back items in case the craft does not go through
-            InsertSlot(x, 1, true);
-          }
-        }
-        else
-        {
-          foreach (var x in CraftingList)
-          { // puts back items in case the craft does not go through
-            InsertSlot(x, 1, true);
-          }
-        }
+      }
+      else
+      {
+        InsertSlot(output_name, 1, false);
+      }
         CraftingList.Clear(); // wipes crafting list
       }
     }
