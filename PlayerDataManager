@@ -102,9 +102,9 @@ public class PlayerDataManager : MonoBehaviour
             PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json); // reads the saved playerData and creates a new instance of playerData called loadedData with the information from the save in it
             int current_constructnum = ConstructList.Count;
             iterate_constructs_tags = 0;
-            player.transform.position = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]); // loads player position
             Vector3 loadedPosition = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
             player.transform.position = loadedPosition;
+            player.GetComponent<Rigidbody>().MovePosition(loadedPosition);
             player.GetComponent<Hud>().health = loadedData.health; // resets stats to their loaded values
             player.GetComponent<Hud>().stamina = loadedData.stamina;
             player.GetComponent<Hud>().hunger = loadedData.hunger;
@@ -155,7 +155,6 @@ public class PlayerDataManager : MonoBehaviour
             }
             if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
                 iterate_constructs_tags = 0;
-                Debug.Log("destroying");
                 while (iterate_constructs_tags < current_constructnum){
                     GameObject current_object = ConstructList[iterate_constructs_tags];
                     ConstructList.Remove(current_object);
@@ -181,7 +180,7 @@ public class PlayerDataManager : MonoBehaviour
         iterate_names = 4;
         iterate_quants = 4;
         player.GetComponentInChildren<EquipController>().current_obj_selected = "empty";
-        player.transform.position = player.GetComponent<Hud>().RespawnPointTransform.position;
+        player.GetComponent<Rigidbody>().MovePosition(player.GetComponent<Hud>().RespawnPointTransform.position);
         player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
         player.GetComponent<Hud>().stamina = 100;
         player.GetComponent<Hud>().hunger = player.GetComponent<Hud>().maxHunger;
@@ -201,7 +200,7 @@ public class PlayerDataManager : MonoBehaviour
         iterate_names = 2;
         iterate_quants = 2;
         int current_constructnum = ConstructList.Count;
-        player.transform.position = player.GetComponent<Hud>().RespawnPointTransform.position;
+        player.GetComponent<Rigidbody>().MovePosition(player.GetComponent<Hud>().RespawnPointTransform.position);
         player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
         player.GetComponent<Hud>().stamina = 100;
         player.GetComponent<Hud>().hunger = 100;
@@ -215,7 +214,6 @@ public class PlayerDataManager : MonoBehaviour
         MenuManager.instance.Dmg_slider_obj.value = player.GetComponent<Inventory>().player_dmg;
         if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
             iterate_constructs_tags = 0;
-            Debug.Log("destroying");
             while (iterate_constructs_tags < current_constructnum){
                 GameObject current_object = ConstructList[iterate_constructs_tags];
                 ConstructList.Remove(current_object);
