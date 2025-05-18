@@ -84,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
     private void StateHandler()
     {
         // Mode - Sprinting
-        if (grounded && Input.GetKey(sprintKey))
+        if (grounded && Input.GetKey(sprintKey) && otherScript.is_sprinting_bool)
         {
             moveSpeed = sprintSpeed;
             animatorp.speed = 2;
