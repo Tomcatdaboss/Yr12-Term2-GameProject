@@ -63,34 +63,35 @@ public class Inventory : MonoBehaviour
       }
       if (enough_material)
       {
-        SoundManager.instance.PlaySound(SoundManager.instance.craft, SoundManager.instance.volume);
-      if (output_name == "Campfire") // checks that the item isnt a object or 'construct' like the campfire or boat.
-      {
         foreach (var x in CraftingList)
         { // checks that all items in the crafting list are present in the inventory
           InsertSlot(x, -1, true);
         }
-      }
-      else if (output_name == "Ship")
-      {
-      }
-      else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle")
-      { // if the output is an equipable item, sends it to the equip slots. If not, sends it to the inventory.
-        InsertSlot(output_name, 1, true);
-      }
-      else if (FindSlot(output_name, EquipSlots, false) == null)
-      { // makes sure that you can't craft two of the same tool
-        foreach (var x in CraftingList)
-        { // puts back items in case the craft does not go through
-          InsertSlot(x, 1, true);
+        SoundManager.instance.PlaySound(SoundManager.instance.craft, SoundManager.instance.volume);
+        if (output_name == "Campfire") // checks that the item isnt a object or 'construct' like the campfire or boat.
+        {
         }
-      }
-      else
-      {
-        InsertSlot(output_name, 1, false);
-      }
-        CraftingList.Clear(); // wipes crafting list
-      }
+        else if (output_name == "Ship")
+        {
+        }
+        else if (output_name != "Axe" && output_name != "Spear" && output_name != "Pickaxe" && output_name != "Sickle")
+        { // if the output is an equipable item, sends it to the equip slots. If not, sends it to the inventory.
+          InsertSlot(output_name, 1, true);
+        }
+        else if (FindSlot(output_name, EquipSlots, false) == null)
+        {
+          InsertSlot(output_name, 1, false); 
+        }
+        else
+        {
+          // makes sure that you can't craft two of the same tool
+          foreach (var x in CraftingList)
+          { // puts back items in case the craft does not go through
+            InsertSlot(x, 1, true);
+          }
+        }
+          CraftingList.Clear(); // wipes crafting list
+        }
     }
     public GameObject FindSlot(string given_name, List<GameObject> TypeSlots, bool adding) // this is an iteration function used to find items in the inventory, suitable slots to place items in, etc.
     {
@@ -116,7 +117,7 @@ public class Inventory : MonoBehaviour
             }
           }
           return null;
-      }else if (TypeSlots == EquipSlots){ // goes through all the different equip slots for one that is empty 
+      } else if (TypeSlots == EquipSlots){ // goes through all the different equip slots for one that is empty 
           int i = 0;
           while (i < EquipSlots.Count){
             if(EquipSlots[i].GetComponent<Slot>().item_name == given_name && adding == false){
