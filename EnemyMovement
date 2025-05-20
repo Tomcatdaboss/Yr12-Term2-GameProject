@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -11,8 +12,6 @@ public class EnemyMovement : MonoBehaviour
     public float health;
     public int max_health;
     public float turnrad;
-    public double timer = 10;
-    public double deathtimer = 10;
     public float new_x;
     public float new_z;
     private bool attack_lock;
@@ -20,6 +19,8 @@ public class EnemyMovement : MonoBehaviour
     private bool is_moving = true;
     private bool is_dead = false;
     public Vector3 spawn;
+    public float starttime;
+    public float endtime;
 
     // Start is called before the first frame update
     void Start()
@@ -34,10 +35,8 @@ public class EnemyMovement : MonoBehaviour
     {
         if (is_dead == false){
             //Wandering mechanic.
-            // this if statement has a timer that decreases every frame. When it reaches zero, the enemy locates a point nearby, then resets the timer.
-            //timer -= 0.01;
+            // the enemy locates a point nearby, then repeats.
             if(at_position && player_found == false){
-                //timer = 10;
                 new_x = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
                 new_z = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
                 at_position = false;
@@ -68,24 +67,30 @@ public class EnemyMovement : MonoBehaviour
         if(health <= 0){
             // triggers dead animation, locks down all other functions, turns enemy to "meat" layer.
             is_dead = true;
+            animator.SetBool("InAttackRange", false);
             animator.SetBool("IsDead", is_dead);
             detector.SetActive(false);
             enemybody.layer = 10;
-            if(animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true){ // checks if dead anim has started, to trigger timer
-                deathtimer -= 0.01;
-                if(deathtimer <= 0){ // after timer finishes, the enemy respawns and resets all stats
-                    player.GetComponent<Hud>().xp += 50;
-                    transform.position = spawn;
-                    enemybody.layer = 11;
-                    detector.SetActive(true);
-                    is_dead = false;
-                    animator.SetBool("IsDead", is_dead);
-                    health = max_health;
-                    deathtimer = 10;
-                    timer = 10;
-                    player_found = false;
-                }
+            if (starttime == 0)
+            {
+                starttime = Time.time;
             }
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true)
+                { // checks if dead anim has started, to trigger timer
+                    endtime = Time.time;
+                    if (endtime - starttime >= 5.5)
+                    { // after timer finishes, the enemy respawns and resets all stats
+                        player.GetComponent<Hud>().xp += 50;
+                        transform.position = spawn;
+                        enemybody.layer = 11;
+                        detector.SetActive(true);
+                        is_dead = false;
+                        animator.SetBool("IsDead", is_dead);
+                        health = max_health;
+                        starttime = 0;
+                        player_found = false;
+                    }
+                }
         }
         if(is_dead == false && player_found){
             float distance = Vector3.Distance(transform.position,player.position);
