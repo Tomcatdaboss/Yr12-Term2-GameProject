@@ -52,6 +52,7 @@ public class Hud : MonoBehaviour
     public GameObject menu_cam;
     public GameObject menu_button_UI;
     public GameObject hurt_hud;
+    public GameObject water;
     private float hurt_hud_opacity = 0;
 
 
@@ -79,30 +80,31 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(health >= maxHealth){ // these if statements resolve any situations where the changable values in the settings grow to beyond their maximum values as a result of a change in the settings during runtime.
+        if (health >= maxHealth) { // these if statements resolve any situations where the changable values in the settings grow to beyond their maximum values as a result of a change in the settings during runtime.
             health = maxHealth;
         }
-        if(hunger >= maxHunger){
+        if (hunger >= maxHunger) {
             hunger = maxHunger;
         }
-        if(thirst >= maxHunger){
+        if (thirst >= maxHunger) {
             thirst = maxHunger;
         }
 
-        if(gameObject.transform.position.y <= 9.4){ // turns on the blue filter when the player gets to water level
+        if (gameObject.transform.position.y <= 9.4) { // turns on the blue filter when the player gets to water level
             water_overlay_sprite.SetActive(true);
         }
         else {
             water_overlay_sprite.SetActive(false);
         }
-
+        if (gameObject.transform.position.y <= water.transform.position.y + 1)// if the player comes in contact with water, they get their thirst bar refilled.
+        { 
+            thirst = maxHunger;
+        }
         is_winded_end_time = Time.time; // every frame this code updates the current time
         is_hurt_end_time = Time.time; // every frame this code updates the current time
-
         xp_txt.text = XP_level.ToString();
-
         UpdateStatsUI(); // constantly triggers the check to change the UI to reflect current stat levels
-        if(gameObject.transform.position.x <= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && gameObject.transform.position.x >= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x - 10 && gameObject.transform.position.x <= gameObject.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && gameObject.transform.position.z >= gameObject.GetComponent<Hud>().DeathSceneTransform.position.z - 10){
+        if(gameObject.transform.position.x <= DeathSceneTransform.position.x + 10 && gameObject.transform.position.x >= DeathSceneTransform.position.x - 10 && gameObject.transform.position.x <= DeathSceneTransform.position.x + 10 && gameObject.transform.position.z >= DeathSceneTransform.position.z - 10){
         } else {
             LoseHunger(0.001f);// loses hunger and thirst every frame when the player is not in the menu.
             LoseThirst(0.001f);
@@ -336,7 +338,6 @@ public class Hud : MonoBehaviour
         }
 
     }
-
     public void UpdateStatsUI() 
     { // every frame, this updates the on-screen stat bars to match their integer fractions of the maximum.
         float fillF = frontHealthBar.fillAmount; 
@@ -437,9 +438,10 @@ public class Hud : MonoBehaviour
         }
 
     }
-
-    public void OnCollisionStay(Collision collider) { // if the player is near enough to the boat, reveal the win button
-        if(collider.gameObject.tag == "Boat"){
+    public void OnCollisionStay(Collision collider)
+    { // if the player is near enough to the boat, reveal the win button
+        if (collider.gameObject.tag == "Boat")
+        {
             Win_button.SetActive(true);
         }
     }
