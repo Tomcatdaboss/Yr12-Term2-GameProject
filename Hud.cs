@@ -10,7 +10,6 @@ public class Hud : MonoBehaviour
     public GameObject savemanager;
     public GameObject menu_sprite;
     public GameObject water_overlay_sprite;
-    Animator animator;
     private float lerpTimer;
     public int tutorialstep;
     public int maxHealth = 100;
@@ -291,15 +290,19 @@ public class Hud : MonoBehaviour
         } else {
             start_sprite.GetComponent<Image>().color = Color.white;
             start_sprite_txt.GetComponent<Text>().color = Color.black;
-        } 
-        if(tutorialstep == 0) {
+        }
+        if (tutorialstep == 0)
+        {
             start_sprite_txt.GetComponent<Text>().text = start_sprite_normal_txt;
             start_sprite.GetComponent<Image>().sprite = starter_papyrus;
-            start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 4);
-            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(300,320);
-        } else {
             start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 70);
-            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(300,300);
+            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(300, 320);
+            start_sprite_txt.GetComponent<RectTransform>().anchoredPosition = new Vector2(5, 0);
+        }
+        else
+        {
+            start_sprite.GetComponent<RectTransform>().anchoredPosition = new Vector2(-447, 70);
+            start_sprite.GetComponent<RectTransform>().sizeDelta = new Vector2(300, 300);
             start_sprite_txt.GetComponent<RectTransform>().anchoredPosition = new Vector2(5, 70);
             start_sprite.GetComponent<Image>().sprite = later_papyrus;
         }
