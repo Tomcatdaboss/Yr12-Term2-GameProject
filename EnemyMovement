@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -14,6 +16,7 @@ public class EnemyMovement : MonoBehaviour
     public float turnrad;
     public float new_x;
     public float new_z;
+    public float new_y;
     private bool attack_lock;
     public int minimum_distance;
     private bool is_moving = true;
@@ -21,6 +24,7 @@ public class EnemyMovement : MonoBehaviour
     public Vector3 spawn;
     public float starttime;
     public float endtime;
+    public Vector3 moveto;
 
     // Start is called before the first frame update
     void Start()
@@ -33,32 +37,41 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (is_dead == false){
+        if (is_dead == false)
+        {
             //Wandering mechanic.
             // the enemy locates a point nearby, then repeats.
-            if(at_position && player_found == false){
-                new_x = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
-                new_z = gameObject.transform.position.x + UnityEngine.Random.Range(-10,10);
+            if (at_position && player_found == false)
+            {
+                new_x = gameObject.transform.position.x + Random.Range(-10, 10);
+                new_z = gameObject.transform.position.x + Random.Range(-10, 10);
+                new_y = Terrain.activeTerrain.SampleHeight(new Vector3(new_x, transform.position.y, new_z));
+                moveto = new Vector3(new_x, new_y, new_z);
+                gameObject.GetComponent<NavMeshAgent>().destination = moveto;
                 at_position = false;
             }
             // this section moves the enemy to the selected point.
-            if (player_found == false && at_position == false){
-                UnityEngine.Vector3 moveto = new UnityEngine.Vector3 (new_x, transform.position.y, new_z);
-                Vector3 targetdirection = moveto - transform.position;
-                // The step size is equal to speed times frame time.
-                float singleStep = turnrad * Time.deltaTime;
-                // Rotate the forward vector towards the target direction by one step
-                Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
-                // Calculate a rotation a step closer to the target and applies rotation to this object
-                transform.rotation = Quaternion.LookRotation(newDirection);
-                float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
-                if(current_distance > 2){
-                    transform.position += transform.forward * 3 * Time.deltaTime;
-                    is_moving = true;	
-                } else {
+            if (player_found == false && at_position == false)
+            {
+                
+                float current_distance = Vector3.Distance(transform.position, moveto);
+                if (current_distance > 2)
+                {
+                    is_moving = true;
+                }
+                else
+                {
+                    gameObject.GetComponent<NavMeshAgent>().ResetPath();
                     at_position = true;
                     is_moving = false;
                 }
+            }
+            if (gameObject.GetComponent<NavMeshAgent>().pathStatus == NavMeshPathStatus.PathInvalid)
+            {
+                new_x = gameObject.transform.position.x + Random.Range(-10, 10);
+                new_z = gameObject.transform.position.x + Random.Range(-10, 10);
+                new_y = Terrain.activeTerrain.SampleHeight(new Vector3(new_x, transform.position.y, new_z));
+                at_position = false;
             }
         }
         // this section checks if the animal is moving every frame.
@@ -92,22 +105,26 @@ public class EnemyMovement : MonoBehaviour
                     }
                 }
         }
-        if(is_dead == false && player_found){
-            float distance = Vector3.Distance(transform.position,player.position);
-            is_moving = true;
-            Vector3 nony_player = new Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
-            Vector3 targetdirection = nony_player - transform.position;
-             // The step size is equal to speed times frame time.
-            float singleStep = turnrad * Time.deltaTime;
-            // Rotate the forward vector towards the target direction by one step
-            Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
-            // Calculate a rotation a step closer to the target and applies rotation to this object
-            transform.rotation = Quaternion.LookRotation(newDirection);
-		    if(distance > minimum_distance){// checks that the enemy is not too close
-			    transform.position += transform.forward * 10 * Time.deltaTime;	
+        if (is_dead == false && player_found)
+        {
+            moveto = new Vector3(player.transform.position.x, Terrain.activeTerrain.SampleHeight(player.transform.position), player.transform.position.z);
+            gameObject.GetComponent<NavMeshAgent>().destination = moveto;
+            float current_distance = Vector3.Distance(transform.position, moveto);
+            if (current_distance > 2)
+            {
+                is_moving = true;
+                Debug.Log("Working");
             }
-            else{
+            else
+            {
+                gameObject.GetComponent<NavMeshAgent>().ResetPath();
+                at_position = true;
                 is_moving = false;
+            }
+            if (gameObject.GetComponent<NavMeshAgent>().pathStatus == NavMeshPathStatus.PathPartial)
+            {
+                gameObject.GetComponent<NavMeshAgent>().ResetPath();
+                Debug.Log("Path reset");
             }
         }
     }
