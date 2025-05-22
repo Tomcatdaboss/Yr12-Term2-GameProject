@@ -10,7 +10,8 @@ public class CameraMovementScript : MonoBehaviour
     public GameObject help_obj;
     public GameObject menubtnsprite;
     public GameObject campfireUI;
-    float cameraVerticalRotation = 0f;
+    private float xRotation;
+    private float yRotation;
 
     // Start is called before the first frame update
     void Start()
@@ -21,27 +22,24 @@ public class CameraMovementScript : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    { 
+    {
         // the if statement checks if inventory or the help screen is active, then if no, locks the cursor.
-        if(inventory_sprite.activeSelf == false && help_obj.activeSelf == false && menusprite.activeSelf == false && menubtnsprite.activeSelf == false && campfireUI.activeSelf == false){ // testing that they are not in inventory
+        if (inventory_sprite.activeSelf == false && help_obj.activeSelf == false && menusprite.activeSelf == false && menubtnsprite.activeSelf == false && campfireUI.activeSelf == false)
+        { // testing that they are not in inventory
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             // Collect Mouse Input
 
-            float inputX = Input.GetAxis("Mouse X") * mouseSensitivity;
-            float inputY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+            float inputX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * mouseSensitivity;
+            float inputY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * mouseSensitivity;
 
-            // Rotate the Camera around its local X axis
-
-            cameraVerticalRotation -= inputY;
-            cameraVerticalRotation = Mathf.Clamp(cameraVerticalRotation, -90f, 50f);
-            transform.localEulerAngles = Vector3.right * cameraVerticalRotation;
-
-
-            // Rotate the Player Object and the Camera around its Y axis
-
-            player.Rotate(Vector3.up * inputX);
-        } else{
+            yRotation += inputX;
+            xRotation -= inputY;
+            xRotation = Mathf.Clamp(xRotation, -90f, 50f);
+            player.transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        }
+        else
+        {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
