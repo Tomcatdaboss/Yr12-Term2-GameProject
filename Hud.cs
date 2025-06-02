@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class Hud : MonoBehaviour
 {
+    public static Hud instance;
     public GameObject XP_text;
     public GameObject DeathScene;
     public GameObject WinScene;
@@ -11,11 +12,16 @@ public class Hud : MonoBehaviour
     public GameObject menu_sprite;
     public GameObject water_overlay_sprite;
     private float lerpTimer;
+    private float lerpTimerX;
+    private float lerpTimerS;
+    private float lerpTimerT;
+    private float lerpTimerH;
     public int tutorialstep;
     public int maxHealth = 100;
     public int maxStamina = 100;
     public int maxHunger = 100;
     public int maxXP = 100;
+    public float hperc;
     public float stamina;
     public float health;
     public float hunger;
@@ -40,7 +46,6 @@ public class Hud : MonoBehaviour
     public Sprite later_papyrus;
     public string start_sprite_normal_txt;
     public float XP_level;
-    private float expomaxXP;
     private Text xp_txt;
     private float lasthealth = 100;
     public float is_winded_start_time = 0;
@@ -55,7 +60,14 @@ public class Hud : MonoBehaviour
     public GameObject water;
     private float hurt_hud_opacity = 0;
 
-
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        Application.targetFrameRate = 60; // sets target framerate
+    }
     // Start is called before the first frame update
     public void Start()
     { // initialising values of the stats
@@ -68,7 +80,6 @@ public class Hud : MonoBehaviour
         start_sprite_normal_txt = start_sprite_txt.GetComponent<Text>().text;
         XP_level = 0;
         UpdateStatsUI();
-        expomaxXP = maxXP;
         inventory_sprite.SetActive(false);
         health = Mathf.Clamp(health, 0, maxHealth);
         stamina = Mathf.Clamp(stamina, 0, maxStamina);
@@ -80,7 +91,8 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (health >= maxHealth) { // these if statements resolve any situations where the changable values in the settings grow to beyond their maximum values as a result of a change in the settings during runtime.
+        if (health >= maxHealth)
+        { // these if statements resolve any situations where the changable values in the settings grow to beyond their maximum values as a result of a change in the settings during runtime.
             health = maxHealth;
         }
         if (hunger >= maxHunger) {
@@ -114,6 +126,8 @@ public class Hud : MonoBehaviour
         }else if (thirst <= 1){
             GainHealth(-0.01f);
         }
+
+        // DEV FUNCTIONS! REMOVE THESE BEFORE SUBMITTING!
         if (Input.GetKeyDown(KeyCode.M)) // these if statements are testing functions to artificially trigger stat change
         {
             GainHealth(Random.Range(5, 10));
@@ -126,6 +140,7 @@ public class Hud : MonoBehaviour
         {
             GainXp(Random.Range(5, 10));
         }
+        
         if (Input.GetKey(KeyCode.LeftShift) && stamina > 0.5) // sprinting code. 
         {
             is_sprinting_bool = true; // triggers faster movement
@@ -170,13 +185,6 @@ public class Hud : MonoBehaviour
         {
             XP_level += 1;
             xp = 0;
-            UpdateStatsUI();
-        }
-        if (xp >= expomaxXP && XP_level > 6) // increases the required maximum XP level
-        {
-            XP_level += 1;
-            xp = 0;
-            expomaxXP = maxXP + ((XP_level - 6) * 50);
             UpdateStatsUI();
         }
         if (health <= 0) //if the character loses all health, teleport the player to the death box and start the death UI.
@@ -286,14 +294,14 @@ public class Hud : MonoBehaviour
                 tutorialstep = 9;
             }
         }
-        if (tutorialstep == 9){
+        if (tutorialstep == 9){ // if the tutorial is complete make it vanish
             start_sprite.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
             start_sprite_txt.GetComponent<Text>().color = new Color(0f, 0f, 0f, 0f);
         } else {
             start_sprite.GetComponent<Image>().color = Color.white;
             start_sprite_txt.GetComponent<Text>().color = Color.black;
         }
-        if (tutorialstep == 0)
+        if (tutorialstep == 0) // if the tutorial just started, make the window bigger and have a different position
         {
             start_sprite_txt.GetComponent<Text>().text = start_sprite_normal_txt;
             start_sprite.GetComponent<Image>().sprite = starter_papyrus;
@@ -319,7 +327,7 @@ public class Hud : MonoBehaviour
             DeathScene.SetActive(false);
             WinScene.SetActive(false);
         }
-        if(Input.GetKeyDown(KeyCode.Escape) && WinScene.activeSelf){
+        if(Input.GetKeyDown(KeyCode.Escape) && WinScene.activeSelf){ // if standing in the boat and the winscene is active then pressing esc will take you to the menu
             WinScene.SetActive(false);
             inventory_sprite.SetActive(false);
             help_sprite.SetActive(false);
@@ -336,7 +344,7 @@ public class Hud : MonoBehaviour
                 }
             }
         }
-
+        hperc = health / maxHealth;
     }
     public void UpdateStatsUI() 
     { // every frame, this updates the on-screen stat bars to match their integer fractions of the maximum.
@@ -351,13 +359,19 @@ public class Hud : MonoBehaviour
         float staminaFraction = stamina / maxStamina;
         float hungerFraction = hunger / maxHunger;
         float thirstFraction = thirst / maxHunger;
+        float percentComplete;
+        float percentCompleteS;
+        float percentCompleteT;
+        float percentCompleteH;
+        float percentCompleteX;
+
 
         if (fillB > hFraction) // if the health has decreased do this
         {
             frontHealthBar.color = Color.red; // adds a red tint to indicate that the health is decreasing
             frontHealthBar.fillAmount = hFraction; // next 5 lines slowly decrease the health bar on screen
             lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
+            percentComplete = lerpTimer / chipSpeed;
             percentComplete = percentComplete * percentComplete;
             backHealthBar.fillAmount = Mathf.Lerp(fillB, hFraction, percentComplete);
             frontHealthBar.color = Color.white; // return to normal colour
@@ -367,7 +381,7 @@ public class Hud : MonoBehaviour
             frontHealthBar.color = Color.green; // adds a green tint to indicate that the health is increasing
             backHealthBar.fillAmount = hFraction; // next 5 lines slowly increase the health bar on screen
             lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
+            percentComplete = lerpTimer / chipSpeed;
             percentComplete = percentComplete * percentComplete;
             frontHealthBar.fillAmount = Mathf.Lerp(fillF, backHealthBar.fillAmount, percentComplete);
             frontHealthBar.color = Color.white; // return to normal colour
@@ -375,66 +389,66 @@ public class Hud : MonoBehaviour
         if (fillX < xpFraction) // if the xp has increased do this
         {
             xpBarFiller.fillAmount = xpFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            xpBarFiller.fillAmount = Mathf.Lerp(fillX, xpBarFiller.fillAmount, percentComplete);
+            lerpTimerX += Time.deltaTime;
+            percentCompleteX = lerpTimerX / chipSpeed;
+            percentCompleteX = percentCompleteX * percentCompleteX;
+            xpBarFiller.fillAmount = Mathf.Lerp(fillX, xpBarFiller.fillAmount, percentCompleteX);
         }
         if (fillX > xpFraction) // if the xp has decreased do this
         {
             xpBarFiller.fillAmount = xpFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            xpBarFiller.fillAmount = Mathf.Lerp(fillX, xpFraction, percentComplete);
+            lerpTimerX += Time.deltaTime;
+            percentCompleteX = lerpTimerX / chipSpeed;
+            percentCompleteX = percentCompleteX * percentCompleteX;
+            xpBarFiller.fillAmount = Mathf.Lerp(fillX, xpFraction, percentCompleteX);
         }
         if (fillS < staminaFraction) // if the stamina has increased do this
         {
             staminaBarFiller.fillAmount = staminaFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            staminaBarFiller.fillAmount = Mathf.Lerp(fillS, staminaBarFiller.fillAmount, percentComplete);
+            lerpTimerS += Time.deltaTime;
+            percentCompleteS = lerpTimerS / chipSpeed;
+            percentCompleteS = percentCompleteS * percentCompleteS;
+            staminaBarFiller.fillAmount = Mathf.Lerp(fillS, staminaBarFiller.fillAmount, percentCompleteS);
         }
         if (fillS > staminaFraction) // if the stamina has decreased do this
         {
             staminaBarFiller.fillAmount = staminaFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            staminaBarFiller.fillAmount = Mathf.Lerp(fillS, staminaFraction, percentComplete);
+            lerpTimerS += Time.deltaTime;
+            percentCompleteS = lerpTimerS / chipSpeed;
+            percentCompleteS = percentCompleteS * percentCompleteS;
+            staminaBarFiller.fillAmount = Mathf.Lerp(fillS, staminaFraction, percentCompleteS);
         }
         if (fillH < hungerFraction) // if the hunger has increased do this
         {
             hungerBarFiller.fillAmount = hungerFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            hungerBarFiller.fillAmount = Mathf.Lerp(fillH, hungerBarFiller.fillAmount, percentComplete);
+            lerpTimerH += Time.deltaTime;
+            percentCompleteH = lerpTimerH / chipSpeed;
+            percentCompleteH = percentCompleteH * percentCompleteH;
+            hungerBarFiller.fillAmount = Mathf.Lerp(fillH, hungerBarFiller.fillAmount, percentCompleteH);
         }
         if (fillH > hungerFraction) // if the hunger has decreased do this
         {
             hungerBarFiller.fillAmount = hungerFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            hungerBarFiller.fillAmount = Mathf.Lerp(fillH, hungerFraction, percentComplete);
+            lerpTimerH += Time.deltaTime;
+            percentCompleteH = lerpTimerH / chipSpeed;
+            percentCompleteH = percentCompleteH * percentCompleteH;
+            hungerBarFiller.fillAmount = Mathf.Lerp(fillH, hungerFraction, percentCompleteH);
         }
         if (fillT < thirstFraction) // if the thirst has increased do this
         {
             thirstBarFiller.fillAmount = thirstFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            thirstBarFiller.fillAmount = Mathf.Lerp(fillT, thirstBarFiller.fillAmount, percentComplete);
+            lerpTimerT += Time.deltaTime;
+            percentCompleteT = lerpTimerT / chipSpeed;
+            percentCompleteT = percentCompleteT * percentCompleteT;
+            thirstBarFiller.fillAmount = Mathf.Lerp(fillT, thirstBarFiller.fillAmount, percentCompleteT);
         }
         if (fillT > thirstFraction) // if the thirst has decreased do this
         {
             thirstBarFiller.fillAmount = thirstFraction;
-            lerpTimer += Time.deltaTime;
-            float percentComplete = lerpTimer / chipSpeed;
-            percentComplete = percentComplete * percentComplete;
-            thirstBarFiller.fillAmount = Mathf.Lerp(fillT, thirstFraction, percentComplete);
+            lerpTimerT += Time.deltaTime;
+            percentCompleteT = lerpTimerT / chipSpeed;
+            percentCompleteT = percentCompleteT * percentCompleteT;
+            thirstBarFiller.fillAmount = Mathf.Lerp(fillT, thirstFraction, percentCompleteT);
         }
 
     }
@@ -467,7 +481,7 @@ public class Hud : MonoBehaviour
     public void GainXp(float statAmount) // increases the xp by the statAmount. Can be negative, to decrease xp.
     {
         xp += statAmount;
-        lerpTimer = 0f;
+        lerpTimerX = 0f;
     }
     public void LoseStamina(float staminaAmount) // decreases the stamina by the statAmount. Can be negative, to increase stamina.
     {
