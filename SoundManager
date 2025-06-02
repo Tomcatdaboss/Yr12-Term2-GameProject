@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
@@ -8,29 +6,54 @@ public class SoundManager : MonoBehaviour
     public AudioClip playerwalk;
     public AudioClip fibermine;
     public AudioClip woodnstonemine;
+    public AudioClip stonemine;
+    public AudioClip background;
+    public AudioClip boaratk;
+    public AudioClip wolfatk;
     public AudioClip craft;
+    public AudioClip spearatk;
     public float volume;
     public GameObject player;
     [SerializeField] private bool isalreadyplaying;
     [SerializeField] private AudioSource SoundObject;
-    void Awake(){
-        if (instance == null){
+    void Awake()
+    {
+        if (instance == null)
+        {
             instance = this;
         }
+        // starts playing background noises when the game starts
+        AudioSource audioSource = Instantiate(SoundObject, player.transform.position, Quaternion.identity);
+        audioSource.transform.SetParent(player.transform);
+        audioSource.name = "Background";
+        audioSource.clip = background;
+        audioSource.volume = volume;
+        audioSource.Play();
+        float cliplen = background.length;
+        Destroy(audioSource.gameObject, cliplen);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (player.GetComponent<PlayerMovement>().isMoving && isalreadyplaying == false){
-            PlaySound(playerwalk, volume);
-            isalreadyplaying = true;
+        // checks if player movement noise is already being played and if not, plays it
+        if (player.GetComponent<PlayerMovement>().isMoving && GetComponentInChildren<AudioSource>() == null && player.GetComponent<PlayerMovement>().grounded)
+        {
+            PlaySound(playerwalk, volume * 0.2f);
         }
-        if(GetComponentInChildren<AudioSource>() == null){
-            isalreadyplaying = false;
+        if (GameObject.Find("Background") == null) // checks if background music is already playing and if not then restarts
+        {
+            AudioSource audioSource = Instantiate(SoundObject, player.transform.position, Quaternion.identity);
+            audioSource.transform.SetParent(player.transform);
+            audioSource.clip = background;
+            audioSource.volume = volume;
+            audioSource.name = "Background";
+            audioSource.Play();
+            float cliplen = background.length;
+            Destroy(audioSource.gameObject, cliplen);
         }
     }
-    public void PlaySound(AudioClip audioClip, float volume){
+    public void PlaySound(AudioClip audioClip, float volume){ // a function that creates an object at the player location to play the noise, checks what it will play, for how long and at what volume, then despawns when it is done
         AudioSource audioSource = Instantiate(SoundObject, player.transform.position, Quaternion.identity);
         audioSource.transform.SetParent(gameObject.transform);
         audioSource.clip = audioClip;
