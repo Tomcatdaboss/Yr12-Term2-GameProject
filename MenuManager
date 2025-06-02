@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,38 +14,58 @@ public class MenuManager : MonoBehaviour
     public GameObject shownui;
     public Camera menu_cam;
     public Camera main_cam;
+    public GameObject DeathHolder;
+    private Vector3 loadedpos;
+    public GameObject cont_but;
     void Awake(){
         if (instance == null){
             instance = this;
         }
     }
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-    public void OnSettingsChange(){
-        player.GetComponent<Hud>().maxXP = (int)XP_slider_obj.value;
-        player.GetComponent<Hud>().maxHealth = (int)HP_slider_obj.value;
-        player.GetComponent<Hud>().maxHunger = (int)HT_slider_obj.value;
+    public void OnSettingsChange()
+    { // resets values whenever settings are changed
+        PlayerDataManager.instance.LoadGame();
+        Hud.instance.maxXP = (int)XP_slider_obj.value;
+        Hud.instance.maxHealth = (int)HP_slider_obj.value;
+        Hud.instance.health = Hud.instance.hperc * Hud.instance.maxHealth;
+        Hud.instance.maxHunger = (int)HT_slider_obj.value;
         player.GetComponent<Inventory>().player_dmg = (int)Dmg_slider_obj.value;
+        PlayerDataManager.instance.SaveGame();
+        player.GetComponent<Rigidbody>().MovePosition(Hud.instance.DeathSceneTransform.position);
     }
-    public void StartFunc(){ // moves the player to the spawn location
-        savemanager.GetComponent<PlayerDataManager>().LoadGame();
-        player.GetComponent<Hud>().menu_sprite.SetActive(false);
+    public void StartFunc()
+    { // moves the player to the spawn location
         shownui.SetActive(true);
         menu_cam.enabled = false;
         main_cam.enabled = true;
-        player.GetComponent<Hud>().start_sprite.SetActive(true);
-        
+        Hud.instance.menu_sprite.SetActive(false);
+        Hud.instance.start_sprite.SetActive(true);
+
+        string path = Application.persistentDataPath + "/playerData.json"; // finds the saved playerData
+        if (System.IO.File.Exists(path))
+        {
+            string json = System.IO.File.ReadAllText(path);
+            PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json); // reads the saved playerData and creates a new instance of playerData called loadedData with the information from the save in it
+            loadedpos = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
+            if (loadedpos.z < -900) // checks if the previous save has placed the player in the death_holder by mistake and if so then tps player to respawn point
+            {
+                player.GetComponent<Rigidbody>().MovePosition(Hud.instance.RespawnPointTransform.position);
+            }
+        }
+        else
+        { // if there is no previous save it tps the player to respawn point
+            player.GetComponent<Rigidbody>().MovePosition(Hud.instance.RespawnPointTransform.position);
+        }
     }
-    public void StartMenuFunc(){ // turns menu on
-        player.GetComponent<Hud>().start_sprite.SetActive(false);
-        player.GetComponent<Hud>().menu_sprite.SetActive(true);
+    public void StartMenuFunc()
+    { // turns menu on
+        Hud.instance.start_sprite.SetActive(false);
+        Hud.instance.menu_sprite.SetActive(true);
         menu_cam.enabled = true;
         main_cam.enabled = false;
         shownui.SetActive(false);
     }
-    public void QuitGame() {
+    public void QuitGame() { // quits the game when the button is pressed
         Application.Quit();
     }
 }
