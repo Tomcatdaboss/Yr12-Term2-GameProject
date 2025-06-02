@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -57,7 +56,7 @@ public class EnemyMovement : MonoBehaviour
                 Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetdirection, singleStep, 0.0f);
                 // Calculate a rotation a step closer to the target and applies rotation to this object
                 transform.rotation = Quaternion.LookRotation(newDirection);
-                float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto);
+                float current_distance = UnityEngine.Vector3.Distance(transform.position, moveto); // checks the enemy isnt clipping into the player
                 if (current_distance > 2)
                 {
                     transform.position += transform.forward * 3 * Time.deltaTime;
@@ -80,7 +79,7 @@ public class EnemyMovement : MonoBehaviour
             animator.SetBool("IsDead", is_dead);
             detector.SetActive(false);
             enemybody.layer = 10;
-            if (starttime == 0)
+            if (starttime == 0) //  starts timer
             {
                 starttime = Time.time;
             }
@@ -89,7 +88,7 @@ public class EnemyMovement : MonoBehaviour
                     endtime = Time.time;
                     if (endtime - starttime >= 5.5)
                     { // after timer finishes, the enemy respawns and resets all stats
-                        player.GetComponent<Hud>().xp += 50;
+                        Hud.instance.xp += 50;
                         transform.position = spawn;
                         enemybody.layer = 11;
                         detector.SetActive(true);
@@ -102,6 +101,7 @@ public class EnemyMovement : MonoBehaviour
                 }
         }
         if(is_dead == false && player_found){
+            // locates player and points the enemy in plater direction
             float distance = Vector3.Distance(transform.position,player.position);
             is_moving = true;
             Vector3 nony_player = new Vector3(player.position.x, transform.position.y, player.position.z); // calculates player position but keeps enemy looking directly forwards
@@ -120,7 +120,7 @@ public class EnemyMovement : MonoBehaviour
             }
         }
     }
-    void FixedUpdate()
+    void FixedUpdate() // speed calculator
     {
         delt_pos = transform.position - last_pos; // calculates speed
         speed = (delt_pos / Time.fixedDeltaTime).magnitude;
@@ -150,15 +150,15 @@ public class EnemyMovement : MonoBehaviour
                     // attacking function
                     animator.SetBool("InAttackRange", true);
                     if(animator.GetCurrentAnimatorStateInfo(0).IsName("EnemyAttack") && attack_lock == false){                       
-                        player.GetComponent<Hud>().health -= 5;
-                        if (gameObject.name == "boar_enemy")
+                        Hud.instance.health -= 5;
+                        if (gameObject.name == "boar_enemy") // plays noise
                         {
                             SoundManager.instance.PlaySound(SoundManager.instance.boaratk, SoundManager.instance.volume * 1.5f);
                         } else {
                             SoundManager.instance.PlaySound(SoundManager.instance.wolfatk, SoundManager.instance.volume * 1.5f);
                         }
 
-                        attack_lock = true;
+                        attack_lock = true; // stops the enemy from attacking again until the animation is idle
                     }
                     if(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){                       
                         attack_lock = false;
