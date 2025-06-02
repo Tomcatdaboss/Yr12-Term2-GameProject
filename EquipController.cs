@@ -20,7 +20,7 @@ public class EquipController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(player.GetComponent<Hud>().inventory_sprite.activeSelf != true && player.GetComponent<Hud>().help_sprite.activeSelf != true && player.GetComponent<Hud>().menu_button_UI.activeSelf != true && player.GetComponent<Hud>().menu_sprite.activeSelf != true)
+        if(Hud.instance.inventory_sprite.activeSelf != true && Hud.instance.help_sprite.activeSelf != true && Hud.instance.menu_button_UI.activeSelf != true && Hud.instance.menu_sprite.activeSelf != true)
         {
             can_mine = true;
         } else {
