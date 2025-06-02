@@ -29,7 +29,7 @@ public class CampfireController : MonoBehaviour
             CampfireReady();
             if (UI.activeSelf == false && Input.GetKey(KeyCode.C)) { // if the menu is not already active, pressing C opens the menu
                 CampfireActivate();
-            } else if(UI.activeSelf && Input.GetKey(KeyCode.C)){ // closes menu if menu was active and C was pressed
+            } else if(UI.activeSelf && Input.GetKeyDown(KeyCode.C)){ // closes menu if menu was active and C was pressed
                 button.SetActive(true);
                 UI.SetActive(false);
             }  
