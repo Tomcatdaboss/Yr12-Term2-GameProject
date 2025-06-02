@@ -8,12 +8,12 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce;
     private float jumpCooldown = 1;
     private float airMultiplier = 0.4f;
-    private bool readyToJump;
+    public bool readyToJump;
     public KeyCode jumpKey = KeyCode.Space;
     public KeyCode sprintKey = KeyCode.LeftShift;
     public float playerHeight;
     public LayerMask whatIsGround;
-    bool grounded;
+    public bool grounded;
     public float maxSlopeAngle;
     private RaycastHit slopeHit;
     private bool exitingSlope;
@@ -25,16 +25,17 @@ public class PlayerMovement : MonoBehaviour
     public float y_at_jump;
     public float y_after_jump;
     public float rotateSpeed = 100f;
-    public float maxFallDistance = -30;
+    private float maxFallDistance = -30;
     public Transform respawnPoint;
     Animator animatorp;
     public bool isMoving = false;
-    public GameObject Camera;
+    public float velocity;
     private void Start()
     {
+        // assigns variables
         rb = GetComponent<Rigidbody>();
         readyToJump = true;
-        otherScript = gameObject.GetComponent<Hud>();
+        otherScript = Hud.instance;
         animatorp = gameObject.GetComponent<Animator>();
         y_at_jump = transform.position.y;
     }
@@ -43,6 +44,8 @@ public class PlayerMovement : MonoBehaviour
     {
         // ground check
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+        velocity = rb.velocity.magnitude;
+        //gets input & speed
         MyInput();
         SpeedControl();
         StateHandler();
@@ -51,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.drag = groundDrag;
         }
-        if (moveDirection.magnitude > 0)
+        if (moveDirection.magnitude > 0) // handles animations
         {
             isMoving = true;
         }
@@ -62,12 +65,12 @@ public class PlayerMovement : MonoBehaviour
         animatorp.SetBool("IsMoving", isMoving);
     }
 
-    private void FixedUpdate()
+    private void FixedUpdate() // calls this function not every frame but at a specified time. Inbuilt function used for unity physics calcs
     {
         MovePlayer();
     }
 
-    private void MyInput()
+    private void MyInput() // actually gets the input from the player
     {
         //actually getting input from WASD
         horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -77,32 +80,32 @@ public class PlayerMovement : MonoBehaviour
         {
             readyToJump = false;
             Jump();
-            Invoke(nameof(ResetJump), jumpCooldown);
+            Invoke(nameof(ResetJump), jumpCooldown); // resets jump at a specified time
         }
     }
 
-    private void StateHandler()
+    private void StateHandler() // checks the various states the player may be in and assigns certain variables to match
     {
-        // Mode - Sprinting
+        // Sprinting
         if (grounded && Input.GetKey(sprintKey) && otherScript.is_sprinting_bool)
         {
             moveSpeed = sprintSpeed;
             animatorp.speed = 2;
         }
-        // Mode - Walking
+        // Walking
         else if (grounded)
         {
             moveSpeed = walkSpeed;
             animatorp.speed = 1;
         }
-        // Mode - Falling
+        // Falling
         else
         {
             animatorp.speed = 1;
             rb.drag = 0;
         }
     }
-    private void MovePlayer()
+    private void MovePlayer() // calculates movement direction depending on whether or not the player is falling, on a slope or just walking
     {
         // calculate movement direction
         moveDirection = transform.forward * verticalInput + transform.right * horizontalInput;
@@ -143,21 +146,19 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-
-    private void Jump()
+    private void Jump() // the function that makes the player jump upwards
     {
         exitingSlope = true;
-        // reset y velocity
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // reset y velocity
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
-    private void ResetJump()
+    private void ResetJump() // pretty simple, just resets the jump code so you can jump again
     {
         readyToJump = true;
         exitingSlope = false;
     }
 
-    private bool OnSlope()
+    private bool OnSlope() // checks if the player is on slope or not
     {
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
         {
@@ -166,20 +167,21 @@ public class PlayerMovement : MonoBehaviour
         }
         return false;
     }
-
-    private Vector3 GetSlopeMoveDirection()
+    private Vector3 GetSlopeMoveDirection() // changes the force vector to become parallel to the slope
     {
         return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
     }
     private void OnCollisionEnter(Collision collision) // allows the player to jump again upon hitting the grounds
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground")) // finds difference in y positions after jump and calculates the fall damage
         {
             grounded = true;
             y_after_jump = gameObject.transform.position.y;
             FallDmgCalc(y_at_jump - y_after_jump);
         }
-        if(collision.gameObject.name == "UnderLandBarrier"){ // if the player falls through the terrain, tp them back to spawn.
+        // note: the following is probably not necessary anymore but I'm keeping it in the code just in case.
+        if (collision.gameObject.name == "UnderLandBarrier")
+        { // if the player falls through the terrain, tp them back to spawn.
             transform.position = respawnPoint.position;
         }
         if (transform.position.y < maxFallDistance) // if the player goes below the ocean floor tp back to spawn
@@ -187,13 +189,14 @@ public class PlayerMovement : MonoBehaviour
             transform.position = respawnPoint.position;
         }
     }
-    private void OnCollisionExit(Collision collision){
+    private void OnCollisionExit(Collision collision)
+    { // called when the player leaves the ground
         if (collision.gameObject.CompareTag("Ground"))
         {
-            y_at_jump = gameObject.transform.position.y;
+            y_at_jump = gameObject.transform.position.y; // checks the starting position of the player when they jump
         }
     }
-    private void FallDmgCalc(float y_change){
+    private void FallDmgCalc(float y_change){ // calculates fall damage
         float resultant_health_loss = 0;
         if (y_change > 10){
             resultant_health_loss = y_change / 2;
