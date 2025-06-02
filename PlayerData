@@ -1,20 +1,19 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 [System.Serializable]
 // this is a class containing the 'state' of the game - all the important variables used to define the player's context and progression. It is used to store data in the save file.
 public class PlayerData
 {
     public float [] player_position;
     public int tut_step;
-    public float health;
+    public float healthperc;
     public float stamina;
     public float thirst;
     public float hunger;
     public float level;
-    public float maxHp;
-    public float maxXp;
-    public float maxHT;
+    public int maxHp;
+    public int maxXp;
+    public int maxHT;
+    public int maxDmg;
     public float xp;
     public string current_equip;
     public float enemy_health_1;
