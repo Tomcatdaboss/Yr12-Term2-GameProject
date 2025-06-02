@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public class PlayerDataManager : MonoBehaviour
 {
+    public static PlayerDataManager instance;
     public GameObject player;
     public GameObject enemy1;
     public GameObject enemy2;
@@ -16,9 +17,18 @@ public class PlayerDataManager : MonoBehaviour
     public List <GameObject> SlotList;
     public List <GameObject> ConstructList;
     public GameObject campfire;
-    void Start() {
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+    void Start()
+    {
         string path = Application.persistentDataPath + "/playerData.json"; // finds the saved playerData
-        if (System.IO.File.Exists(path)){ // if there has been a save in the past then:
+        if (System.IO.File.Exists(path))
+        { // if there has been a save in the past then:
             string json = System.IO.File.ReadAllText(path);
             PlayerData loadedData = JsonUtility.FromJson<PlayerData>(json); // reads the saved playerData and creates a new instance of playerData called loadedData with the information from the save in it
             MenuManager.instance.XP_slider_obj.value = loadedData.maxXp;
@@ -43,16 +53,17 @@ public class PlayerDataManager : MonoBehaviour
         iterate_constructs_tags = 0;      
         PlayerData playerData = new PlayerData(); // creates new instance of playerData
         playerData.player_position = new float [] {player.transform.position.x, player.transform.position.y, player.transform.position.z}; // saving player position
-        playerData.health = player.GetComponent<Hud>().health; // saving stats
-        playerData.stamina = player.GetComponent<Hud>().stamina;
-        playerData.hunger = player.GetComponent<Hud>().hunger;
-        playerData.thirst = player.GetComponent<Hud>().thirst;
-        playerData.level = player.GetComponent<Hud>().XP_level;
-        playerData.xp = player.GetComponent<Hud>().xp;
-        playerData.maxXp = player.GetComponent<Hud>().maxXP;
-        playerData.maxHp = player.GetComponent<Hud>().maxHealth;
-        playerData.maxHT = player.GetComponent<Hud>().maxHunger;
-        playerData.tut_step = player.GetComponent<Hud>().tutorialstep;
+        playerData.healthperc = Hud.instance.hperc; // saving stats
+        playerData.stamina = Hud.instance.stamina;
+        playerData.hunger = Hud.instance.hunger;
+        playerData.thirst = Hud.instance.thirst;
+        playerData.level = Hud.instance.XP_level;
+        playerData.xp = Hud.instance.xp;
+        playerData.maxXp = Hud.instance.maxXP;
+        playerData.maxHp = Hud.instance.maxHealth;
+        playerData.maxHT = Hud.instance.maxHunger;
+        playerData.maxDmg = player.GetComponent<Inventory>().player_dmg;
+        playerData.tut_step = Hud.instance.tutorialstep;
         playerData.current_equip = player.GetComponentInChildren<EquipController>().current_obj_selected; // saving equipped object
         playerData.enemy_health_1 = enemy1.GetComponent<EnemyMovement>().health; // saving enemy health and position
         playerData.enemy_health_2 = enemy2.GetComponent<EnemyMovement>().health;
@@ -105,13 +116,18 @@ public class PlayerDataManager : MonoBehaviour
             Vector3 loadedPosition = new Vector3(loadedData.player_position[0], loadedData.player_position[1], loadedData.player_position[2]);
             player.transform.position = loadedPosition;
             player.GetComponent<Rigidbody>().MovePosition(loadedPosition);
-            player.GetComponent<Hud>().health = loadedData.health; // resets stats to their loaded values
-            player.GetComponent<Hud>().stamina = loadedData.stamina;
-            player.GetComponent<Hud>().hunger = loadedData.hunger;
-            player.GetComponent<Hud>().thirst = loadedData.thirst;
-            player.GetComponent<Hud>().XP_level = loadedData.level;
-            player.GetComponent<Hud>().xp = loadedData.xp;
-            player.GetComponent<Hud>().tutorialstep = loadedData.tut_step;
+            Hud.instance.hperc = loadedData.healthperc; // resets stats to their loaded values
+            Hud.instance.stamina = loadedData.stamina;
+            Hud.instance.hunger = loadedData.hunger;
+            Hud.instance.thirst = loadedData.thirst;
+            Hud.instance.XP_level = loadedData.level;
+            Hud.instance.xp = loadedData.xp;
+            Hud.instance.tutorialstep = loadedData.tut_step;
+            Hud.instance.maxXP = loadedData.maxXp;
+            Hud.instance.maxHealth = loadedData.maxHp;
+            Hud.instance.health = loadedData.healthperc * loadedData.maxHp;
+            Hud.instance.maxHunger = loadedData.maxHT;
+            player.GetComponent<Inventory>().player_dmg = loadedData.maxDmg;
             player.GetComponentInChildren<EquipController>().current_obj_selected = loadedData.current_equip; // replaces current object with the loaded object
 
             enemy1.GetComponent<EnemyMovement>().health = loadedData.enemy_health_1; // loads enemy heath and position
@@ -177,15 +193,15 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
     public void DeathResetGame() { // this function is called on death, it wipes the inventory apart from the equips, and returns the position of the player and their stats to their starting values
-        iterate_names = 4;
+        iterate_names = 4; // resets stats to original values
         iterate_quants = 4;
         player.GetComponentInChildren<EquipController>().current_obj_selected = "empty";
-        player.GetComponent<Rigidbody>().MovePosition(player.GetComponent<Hud>().RespawnPointTransform.position);
-        player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
-        player.GetComponent<Hud>().stamina = 100;
-        player.GetComponent<Hud>().hunger = player.GetComponent<Hud>().maxHunger;
-        player.GetComponent<Hud>().thirst = player.GetComponent<Hud>().maxHunger;
-        while (iterate_names <= 18)
+        player.GetComponent<Rigidbody>().MovePosition(Hud.instance.RespawnPointTransform.position);
+        Hud.instance.health = Hud.instance.maxHealth;
+        Hud.instance.stamina = 100;
+        Hud.instance.hunger = Hud.instance.maxHunger;
+        Hud.instance.thirst = Hud.instance.maxHunger;
+        while (iterate_names <= 18) // clears inventory
         {
             SlotList[iterate_names].GetComponent<Slot>().item_name = "empty";
             iterate_names += 1;
@@ -200,17 +216,17 @@ public class PlayerDataManager : MonoBehaviour
         iterate_names = 2;
         iterate_quants = 2;
         int current_constructnum = ConstructList.Count;
-        player.GetComponent<Rigidbody>().MovePosition(player.GetComponent<Hud>().RespawnPointTransform.position);
-        player.GetComponent<Hud>().health = player.GetComponent<Hud>().maxHealth;
-        player.GetComponent<Hud>().stamina = 100;
-        player.GetComponent<Hud>().hunger = 100;
-        player.GetComponent<Hud>().thirst = 100;
-        player.GetComponent<Hud>().xp = 0;
-        player.GetComponent<Hud>().XP_level = 0;
-        player.GetComponent<Hud>().tutorialstep = 0;
-        MenuManager.instance.XP_slider_obj.value =  player.GetComponent<Hud>().maxXP;
-        MenuManager.instance.HP_slider_obj.value =  player.GetComponent<Hud>().maxHealth;
-        MenuManager.instance.HT_slider_obj.value = player.GetComponent<Hud>().maxHunger;
+        player.GetComponent<Rigidbody>().MovePosition(Hud.instance.RespawnPointTransform.position);
+        Hud.instance.health = Hud.instance.maxHealth; // resets stats
+        Hud.instance.stamina = 100;
+        Hud.instance.hunger = 100;
+        Hud.instance.thirst = 100;
+        Hud.instance.xp = 0;
+        Hud.instance.XP_level = 0;
+        Hud.instance.tutorialstep = 0;
+        MenuManager.instance.XP_slider_obj.value =  Hud.instance.maxXP;
+        MenuManager.instance.HP_slider_obj.value =  Hud.instance.maxHealth;
+        MenuManager.instance.HT_slider_obj.value = Hud.instance.maxHunger;
         MenuManager.instance.Dmg_slider_obj.value = player.GetComponent<Inventory>().player_dmg;
         if (current_constructnum > 0){ // if there are any constructs, goes through and deletes any constructs from the game
             iterate_constructs_tags = 0;
@@ -222,7 +238,7 @@ public class PlayerDataManager : MonoBehaviour
             }
             iterate_constructs_tags = 0;
         }
-        while (iterate_names <= 18)
+        while (iterate_names <= 18) // clears inventory
         {
             SlotList[iterate_names].GetComponent<Slot>().item_name = "empty";
             iterate_names += 1;
@@ -233,9 +249,10 @@ public class PlayerDataManager : MonoBehaviour
             iterate_quants += 1;
         }
         player.GetComponent<Inventory>().boat_obj.GetComponent<Transform>().localScale = new Vector3(0,0,0);
+        ResetEnemyPositions();
         SaveGame();
     }
-    public void ResetEnemyPositions(){
+    public void ResetEnemyPositions(){ // this function resets all enemies to their original positions and health.
         enemy1.GetComponent<EnemyMovement>().health = enemy1.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
         enemy1.transform.position = enemy1.GetComponent<EnemyMovement>().spawn;
         enemy2.GetComponent<EnemyMovement>().health = enemy2.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
@@ -249,8 +266,8 @@ public class PlayerDataManager : MonoBehaviour
         enemy6.GetComponent<EnemyMovement>().health = enemy6.GetComponent<EnemyMovement>().max_health; // loads enemy heath and position
         enemy6.transform.position = enemy6.GetComponent<EnemyMovement>().spawn;
     }
-    void OnApplicationQuit(){
-        if(player.transform.position.x <= player.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && player.transform.position.x >= player.GetComponent<Hud>().DeathSceneTransform.position.x - 10 && player.transform.position.x <= player.GetComponent<Hud>().DeathSceneTransform.position.x + 10 && player.transform.position.z >= player.GetComponent<Hud>().DeathSceneTransform.position.z - 10){
+    void OnApplicationQuit(){ // saves game on quit if the player isn't in the menu at the time
+        if(player.transform.position.x <= Hud.instance.DeathSceneTransform.position.x + 10 && player.transform.position.x >= Hud.instance.DeathSceneTransform.position.x - 10 && player.transform.position.x <= Hud.instance.DeathSceneTransform.position.x + 10 && player.transform.position.z >= Hud.instance.DeathSceneTransform.position.z - 10){
         } else {
             SaveGame();
         }
