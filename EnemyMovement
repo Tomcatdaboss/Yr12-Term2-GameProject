@@ -82,13 +82,15 @@ public class EnemyMovement : MonoBehaviour
             if (starttime == 0) //  starts timer
             {
                 starttime = Time.time;
+                gameObject.GetComponent<Rigidbody>().mass = 10000;
             }
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("PlayDead") == true)
                 { // checks if dead anim has started, to trigger timer
                     endtime = Time.time;
-                    if (endtime - starttime >= 5.5)
+                    if (endtime - starttime >= 10)
                     { // after timer finishes, the enemy respawns and resets all stats
                         Hud.instance.xp += 50;
+                        gameObject.GetComponent<Rigidbody>().mass = 1;
                         transform.position = spawn;
                         enemybody.layer = 11;
                         detector.SetActive(true);
