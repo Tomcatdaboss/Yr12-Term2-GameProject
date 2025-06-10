@@ -118,8 +118,8 @@ public class Hud : MonoBehaviour
         UpdateStatsUI(); // constantly triggers the check to change the UI to reflect current stat levels
         if(gameObject.transform.position.x <= DeathSceneTransform.position.x + 10 && gameObject.transform.position.x >= DeathSceneTransform.position.x - 10 && gameObject.transform.position.x <= DeathSceneTransform.position.x + 10 && gameObject.transform.position.z >= DeathSceneTransform.position.z - 10){
         } else {
-            LoseHunger(0.001f);// loses hunger and thirst every frame when the player is not in the menu.
-            LoseThirst(0.001f);
+            LoseHunger(0.003f);// loses hunger and thirst every frame when the player is not in the menu.
+            LoseThirst(0.003f);
         }
         if (hunger <= 1){ // loses health if starving or thirsty
             GainHealth(-0.01f);
@@ -491,7 +491,7 @@ public class Hud : MonoBehaviour
     public void WinGame(){ // if the player presses the S key and wins, trigger the win UI.
         health = maxHealth;
         WinScene.SetActive(true);
-        savemanager.GetComponent<PlayerDataManager>().SaveGame();
+        savemanager.GetComponent<PlayerDataManager>().ClearSave();
         transform.position = DeathSceneTransform.position;
     }
 }
